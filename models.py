@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional, Dict, List
+from typing import Optional, Dict, List, Any
 
 class CustomerInfo(BaseModel):
     """Customer information extracted from insurance documents"""
@@ -16,6 +16,45 @@ class PolicyInfo(BaseModel):
     policy_type: Optional[str] = Field(None, description="Type of insurance policy")
     coverage_amount: Optional[str] = Field(None, description="Coverage amount or benefit")
     premium: Optional[str] = Field(None, description="Premium amount and frequency")
+
+class DynamicExtractionRequest(BaseModel):
+    """Request model for dynamic field extraction"""
+    fields: List[str] = Field(..., description="List of fields to extract from the document")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "fields": ["name", "email", "phone", "address", "policy_number", "coverage_amount"]
+            }
+        }
+
+class DynamicExtractionResult(BaseModel):
+    """Result of dynamic field extraction"""
+    document_type: str = Field(..., description="Classified document type")
+    extracted_fields: Dict[str, Any] = Field(..., description="Dynamically extracted field values")
+    confidence_score: float = Field(..., ge=0.0, le=1.0, description="Confidence score (0-1)")
+    processing_time: float = Field(..., ge=0.0, description="Processing time in seconds")
+    raw_text_preview: str = Field(..., description="Preview of extracted text (first 200 chars)")
+    requested_fields: List[str] = Field(..., description="List of fields that were requested")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "document_type": "life_insurance",
+                "extracted_fields": {
+                    "name": "John Smith",
+                    "email": "john.smith@email.com",
+                    "phone": "(555) 123-4567",
+                    "address": "123 Main St, Anytown, CA",
+                    "policy_number": "LIF1234567",
+                    "coverage_amount": "$500,000"
+                },
+                "confidence_score": 0.85,
+                "processing_time": 2.3,
+                "raw_text_preview": "LIFE INSURANCE POLICY\nPolicyowner: John Smith\nEmail: john.smith@email.com...",
+                "requested_fields": ["name", "email", "phone", "address", "policy_number", "coverage_amount"]
+            }
+        }
 
 class ExtractionResult(BaseModel):
     """Complete result of document processing and information extraction"""

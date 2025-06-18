@@ -235,6 +235,40 @@
             background: #5a6268;
         }
 
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .mode-btn {
+            background: #f8f9fa;
+            color: #6c757d;
+            border: 2px solid #e0e0e0;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .mode-btn:hover {
+            background: #e9ecef;
+            border-color: #667eea;
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        #customFieldsSection h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
         @media (max-width: 768px) {
             .container {
                 margin: 10px;
@@ -267,6 +301,11 @@
         </div>
 
         <div class="main-content">
+            <div class="mode-selector" style="margin-bottom: 20px; text-align: center;">
+                <button class="mode-btn active" id="presetMode" onclick="switchMode('preset')">Insurance Fields</button>
+                <button class="mode-btn" id="customMode" onclick="switchMode('custom')">Custom Fields</button>
+            </div>
+
             <div class="upload-section" id="uploadSection">
                 <div class="upload-icon">📁</div>
                 <h3>Upload Your Document</h3>
@@ -275,6 +314,16 @@
                 <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
                     Choose File
                 </button>
+                
+                <div id="customFieldsSection" style="display: none; margin-top: 20px;">
+                    <h4>Specify Fields to Extract</h4>
+                    <textarea id="customFields" placeholder="Enter field names separated by commas (e.g., name, email, phone, address, policy_number, date_of_birth, company_name)" 
+                             style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-family: inherit; font-size: 14px; height: 80px; resize: vertical;"></textarea>
+                    <div style="margin-top: 10px; font-size: 0.9em; color: #666;">
+                        <strong>Common fields:</strong> name, email, phone, address, ssn, date_of_birth, policy_number, coverage_amount, premium, company, account_number
+                    </div>
+                </div>
+                
                 <div class="supported-formats">
                     <p>Supported formats:</p>
                     <span class="format-tag">PDF</span>
