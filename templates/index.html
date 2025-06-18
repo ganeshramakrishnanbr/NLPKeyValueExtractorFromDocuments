@@ -387,6 +387,7 @@
         const loading = document.getElementById('loading');
         const results = document.getElementById('results');
         const error = document.getElementById('error');
+        let currentMode = 'preset'; // 'preset' or 'custom'
 
         // Drag and drop functionality
         uploadSection.addEventListener('dragover', (e) => {
@@ -438,6 +439,23 @@
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
+        function switchMode(mode) {
+            currentMode = mode;
+            const presetBtn = document.getElementById('presetMode');
+            const customBtn = document.getElementById('customMode');
+            const customSection = document.getElementById('customFieldsSection');
+            
+            if (mode === 'preset') {
+                presetBtn.classList.add('active');
+                customBtn.classList.remove('active');
+                customSection.style.display = 'none';
+            } else {
+                customBtn.classList.add('active');
+                presetBtn.classList.remove('active');
+                customSection.style.display = 'block';
+            }
+        }
+
         async function uploadFile(file) {
             hideError();
             showLoading();
@@ -446,7 +464,21 @@
             formData.append('file', file);
 
             try {
-                const response = await fetch('/upload/', {
+                let endpoint = '/upload/';
+                
+                if (currentMode === 'custom') {
+                    const customFieldsInput = document.getElementById('customFields');
+                    const fields = customFieldsInput.value.trim();
+                    
+                    if (!fields) {
+                        throw new Error('Please specify the fields you want to extract');
+                    }
+                    
+                    endpoint = '/extract-custom/';
+                    formData.append('fields', fields);
+                }
+
+                const response = await fetch(endpoint, {
                     method: 'POST',
                     body: formData
                 });
@@ -457,7 +489,12 @@
                 }
 
                 const result = await response.json();
-                displayResults(result);
+                
+                if (currentMode === 'custom') {
+                    displayDynamicResults(result);
+                } else {
+                    displayResults(result);
+                }
             } catch (err) {
                 showError('Error processing document: ' + err.message);
             } finally {
@@ -534,6 +571,68 @@
             uploadSection.style.display = 'none';
         }
 
+        function displayDynamicResults(data) {
+            // Update confidence score
+            const confidence = Math.round(data.confidence_score * 100);
+            document.getElementById('confidenceText').textContent = confidence + '%';
+            document.getElementById('confidenceFill').style.width = confidence + '%';
+
+            // Display extracted fields dynamically
+            const customerInfo = document.getElementById('customerInfo');
+            customerInfo.innerHTML = '';
+            
+            const extractedFields = data.extracted_fields;
+            const requestedFields = data.requested_fields;
+            
+            requestedFields.forEach(field => {
+                const value = extractedFields[field] || 'Not found';
+                const displayName = field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                
+                customerInfo.innerHTML += `
+                    <div class="info-item">
+                        <div class="info-label">${displayName}</div>
+                        <div class="info-value">${value}</div>
+                    </div>
+                `;
+            });
+
+            // Hide policy info section for custom extraction
+            const policyCard = document.querySelector('.result-card:nth-child(3)');
+            if (policyCard) {
+                policyCard.style.display = 'none';
+            }
+            
+            // Update the customer info title
+            const customerTitle = document.querySelector('.result-card h3');
+            if (customerTitle) {
+                customerTitle.textContent = 'Extracted Information';
+            }
+
+            // Display processing information
+            const processingInfo = document.getElementById('processingInfo');
+            processingInfo.innerHTML = `
+                <div class="info-item">
+                    <div class="info-label">Document Type</div>
+                    <div class="info-value">${data.document_type.replace('_', ' ').toUpperCase()}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Processing Time</div>
+                    <div class="info-value">${data.processing_time} seconds</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Requested Fields</div>
+                    <div class="info-value">${data.requested_fields.join(', ')}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Text Preview</div>
+                    <div class="info-value">${data.raw_text_preview}</div>
+                </div>
+            `;
+
+            results.style.display = 'block';
+            uploadSection.style.display = 'none';
+        }
+
         function showLoading() {
             loading.style.display = 'block';
             uploadSection.style.display = 'none';
@@ -560,6 +659,17 @@
             fileInfo.style.display = 'none';
             fileInput.value = '';
             hideError();
+            
+            // Reset policy card visibility and titles
+            const policyCard = document.querySelector('.result-card:nth-child(3)');
+            if (policyCard) {
+                policyCard.style.display = 'block';
+            }
+            
+            const customerTitle = document.querySelector('.result-card h3');
+            if (customerTitle) {
+                customerTitle.textContent = 'Customer Information';
+            }
         }
     </script>
 </body>
