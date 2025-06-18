@@ -1,5 +1,6 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, UploadFile, File, HTTPException, Request
+from fastapi.responses import JSONResponse, HTMLResponse
+from fastapi.templating import Jinja2Templates
 import uvicorn
 import tempfile
 import os
@@ -10,6 +11,9 @@ from document_processor import DocumentProcessor
 from nlp_extractor import InsuranceNLPExtractor
 
 app = FastAPI(title="Life Insurance Document Processor", version="1.0.0")
+
+# Initialize templates
+templates = Jinja2Templates(directory="templates")
 
 # Initialize processors
 document_processor = DocumentProcessor()
@@ -97,8 +101,11 @@ async def upload_document(file: UploadFile = File(...)):
         raise
     except Exception as e:
         # Clean up temp file in case of error
-        if 'temp_file_path' in locals() and os.path.exists(temp_file_path):
-            os.unlink(temp_file_path)
+        try:
+            if 'temp_file_path' in locals() and os.path.exists(temp_file_path):
+                os.unlink(temp_file_path)
+        except:
+            pass
         
         raise HTTPException(
             status_code=500, 
@@ -114,9 +121,14 @@ async def health_check():
         "timestamp": time.time()
     }
 
-@app.get("/")
-async def root():
-    """Root endpoint with API information"""
+@app.get("/", response_class=HTMLResponse)
+async def root(request: Request):
+    """Serve the main web interface"""
+    return templates.TemplateResponse("index.html", {"request": request})
+
+@app.get("/api")
+async def api_info():
+    """API information endpoint"""
     return {
         "message": "Life Insurance Document Processor API",
         "version": "1.0.0",
