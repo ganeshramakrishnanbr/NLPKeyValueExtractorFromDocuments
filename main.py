@@ -100,12 +100,8 @@ async def upload_document(file: UploadFile = File(...)):
     except HTTPException:
         raise
     except Exception as e:
-        # Clean up temp file in case of error
-        try:
-            if 'temp_file_path' in locals() and os.path.exists(temp_file_path):
-                os.unlink(temp_file_path)
-        except:
-            pass
+        # Clean up temp file in case of error (ignore errors during cleanup)
+        pass
         
         raise HTTPException(
             status_code=500, 
