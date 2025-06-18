@@ -27,3 +27,7 @@ waitForPort = 8000
 
 [deployment]
 run = ["sh", "-c", "pip install fastapi uvicorn pdfplumber python-docx docx2txt spacy && python -m spacy download en_core_web_sm && python main.py"]
+
+[[ports]]
+localPort = 8000
+externalPort = 80
