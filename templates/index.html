@@ -906,6 +906,69 @@
             checkboxes.forEach(checkbox => checkbox.checked = false);
         }
 
+        async function uploadWithProgress(formData, selectedTechniques) {
+            hideError();
+            showLoading();
+
+            // Show initial progress
+            displayMultiTechniqueProgress(selectedTechniques.length, 0, 'Initializing...', 0);
+
+            try {
+                // Simulate progressive technique processing
+                for (let i = 0; i < selectedTechniques.length; i++) {
+                    const technique = selectedTechniques[i];
+                    const displayName = technique.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    
+                    // Update progress for current technique
+                    displayMultiTechniqueProgress(selectedTechniques.length, i + 1, technique, null);
+                    
+                    // Add delay to simulate processing time
+                    await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 400));
+                    
+                    // Simulate confidence score calculation (will be replaced by actual results)
+                    const mockConfidence = Math.random() * 0.6 + 0.1; // 0.1 to 0.7 range
+                    displayMultiTechniqueProgress(selectedTechniques.length, i + 1, technique, mockConfidence);
+                }
+
+                // Final status update
+                const progressContent = document.getElementById('techniqueProgress');
+                if (progressContent) {
+                    const statusText = document.getElementById('techniqueStatus');
+                    if (statusText) statusText.textContent = 'Processing complete! Generating final results...';
+                }
+
+                // Now make the actual API call
+                const response = await fetch('/upload/multi-technique/', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Upload failed');
+                }
+
+                const result = await response.json();
+                
+                // Update progress with actual confidence scores
+                result.technique_results.forEach((techResult, index) => {
+                    displayMultiTechniqueProgress(
+                        selectedTechniques.length, 
+                        index + 1, 
+                        techResult.technique_name, 
+                        techResult.confidence_score
+                    );
+                });
+
+                displayMultiTechniqueResults(result);
+                
+            } catch (err) {
+                showError('Error processing document: ' + err.message);
+            } finally {
+                hideLoading();
+            }
+        }
+
         async function uploadFile(file) {
             hideError();
             showLoading();
@@ -940,6 +1003,9 @@
                     endpoint = '/upload/multi-technique/';
                     formData.append('selected_techniques', selectedTechniques.join(','));
                     formData.append('fields', fields);
+                    
+                    // Show progressive loading for multi-technique
+                    return await uploadWithProgress(formData, selectedTechniques);
                 }
 
                 const response = await fetch(endpoint, {
@@ -1119,6 +1185,79 @@
 
         function hideError() {
             error.style.display = 'none';
+        }
+
+        function displayMultiTechniqueProgress(totalTechniques, currentTechnique, techniqueName, confidence) {
+            const loading = document.getElementById('loading');
+            if (!loading) return;
+            
+            const progress = Math.round((currentTechnique / totalTechniques) * 100);
+            
+            // Update or create progress content
+            let progressContent = document.getElementById('techniqueProgress');
+            if (!progressContent) {
+                progressContent = document.createElement('div');
+                progressContent.id = 'techniqueProgress';
+                progressContent.innerHTML = `
+                    <div style="margin-top: 20px;">
+                        <div style="background: #f8f9fa; border-radius: 8px; padding: 20px;">
+                            <h4 style="margin: 0 0 15px 0; color: #333;">Processing Techniques</h4>
+                            <div style="background: #e9ecef; height: 8px; border-radius: 4px; margin-bottom: 15px;">
+                                <div id="techniqueProgressBar" style="background: #007bff; height: 100%; border-radius: 4px; width: 0%; transition: width 0.3s ease;"></div>
+                            </div>
+                            <div id="techniqueStatus" style="font-size: 0.9em; color: #666;"></div>
+                            <div id="techniqueScores" style="margin-top: 15px; max-height: 200px; overflow-y: auto;"></div>
+                        </div>
+                    </div>
+                `;
+                loading.appendChild(progressContent);
+            }
+            
+            // Update progress bar
+            const progressBar = document.getElementById('techniqueProgressBar');
+            const statusText = document.getElementById('techniqueStatus');
+            const scoresContainer = document.getElementById('techniqueScores');
+            
+            if (progressBar) progressBar.style.width = progress + '%';
+            if (statusText) statusText.textContent = `Processing ${techniqueName.replace(/_/g, ' ')} (${currentTechnique}/${totalTechniques})`;
+            
+            // Add or update technique result
+            if (scoresContainer && techniqueName) {
+                const displayName = techniqueName.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                let existingResult = document.getElementById(`technique-${techniqueName}`);
+                
+                if (!existingResult) {
+                    existingResult = document.createElement('div');
+                    existingResult.id = `technique-${techniqueName}`;
+                    existingResult.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; margin-bottom: 5px; background: white; border-radius: 4px; border-left: 3px solid #007bff; transition: all 0.3s ease;';
+                    
+                    existingResult.innerHTML = `
+                        <span style="font-weight: 500;">${displayName}</span>
+                        <div class="technique-status">
+                            <span class="processing-indicator" style="color: #007bff; font-size: 0.9em;">Processing...</span>
+                        </div>
+                    `;
+                    
+                    scoresContainer.appendChild(existingResult);
+                }
+                
+                // Update with confidence score if provided
+                if (confidence !== undefined && confidence !== null) {
+                    const confidenceClass = confidence >= 0.7 ? 'confidence-high' : confidence >= 0.4 ? 'confidence-medium' : 'confidence-low';
+                    const statusDiv = existingResult.querySelector('.technique-status');
+                    
+                    if (statusDiv) {
+                        statusDiv.innerHTML = `
+                            <span class="confidence-badge ${confidenceClass}">${Math.round(confidence * 100)}%</span>
+                        `;
+                        
+                        // Add completion animation
+                        existingResult.style.borderLeftColor = confidence >= 0.4 ? '#28a745' : '#ffc107';
+                    }
+                }
+                
+                scoresContainer.scrollTop = scoresContainer.scrollHeight;
+            }
         }
 
         function displayMultiTechniqueResults(data) {
