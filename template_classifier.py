@@ -1,11 +1,8 @@
-import numpy as np
 import re
 from typing import Dict, List, Tuple, Optional
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-import pickle
 import json
 import logging
+from collections import Counter
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +13,6 @@ class AdvancedTemplateClassifier:
     """
     
     def __init__(self):
-        self.vectorizer = TfidfVectorizer(max_features=5000, stop_words='english')
         self.template_embeddings = {}
         self.template_keywords = {}
         self.state_regulations = {}
@@ -187,8 +183,10 @@ class AdvancedTemplateClassifier:
             category_scores[category] = score / len(keywords) if keywords else 0
         
         # Return category with highest score
-        best_category = max(category_scores, key=category_scores.get)
-        return best_category if category_scores[best_category] > 0 else "general_document"
+        if category_scores:
+            best_category = max(category_scores.keys(), key=lambda k: category_scores[k])
+            return best_category if category_scores[best_category] > 0 else "general_document"
+        return "general_document"
     
     def _classify_sub_category(self, text: str, primary_category: str) -> str:
         """Detailed sub-category classification based on primary category"""
