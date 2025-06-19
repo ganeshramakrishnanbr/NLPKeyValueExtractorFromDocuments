@@ -57,12 +57,17 @@ class DynamicExtractionResult(BaseModel):
 # Document processor
 class DocumentProcessor:
     def __init__(self):
-        self.supported_formats = ['pdf', 'docx', 'doc', 'md']
+        self.supported_formats = ['pdf', 'docx', 'doc', 'md', 'txt']
     
     def extract_text(self, file_path: str, file_type: str) -> str:
-        if file_type == 'md':
-            with open(file_path, 'r', encoding='utf-8') as f:
-                return f.read()
+        if file_type in ['md', 'txt']:
+            try:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    return f.read()
+            except UnicodeDecodeError:
+                # Try with different encoding if UTF-8 fails
+                with open(file_path, 'r', encoding='latin-1') as f:
+                    return f.read()
         # For other formats, return basic text extraction
         return "Sample extracted text from document"
     

@@ -467,18 +467,28 @@
             const results = [];
             
             for (let file of selectedFiles) {
-                const formData = new FormData();
-                formData.append('file', file);
+                try {
+                    const formData = new FormData();
+                    formData.append('file', file);
 
-                const response = await fetch('http://localhost:8000/upload/', {
-                    method: 'POST',
-                    body: formData
-                });
+                    const response = await fetch('http://localhost:8000/upload/', {
+                        method: 'POST',
+                        body: formData
+                    });
 
-                const result = await response.json();
-                result.filename = file.name;
-                result.processing_mode = 'Standard';
-                results.push(result);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    result.filename = file.name;
+                    result.processing_mode = 'Standard';
+                    results.push(result);
+                } catch (error) {
+                    console.error('Processing error for file:', file.name, error);
+                    showError(`Failed to process ${file.name}: ${error.message}`);
+                    return;
+                }
             }
             
             displayStandardResults(results);
@@ -495,19 +505,29 @@
             const results = [];
             
             for (let file of selectedFiles) {
-                const formData = new FormData();
-                formData.append('file', file);
-                formData.append('fields', customFields);
+                try {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    formData.append('fields', customFields);
 
-                const response = await fetch('http://localhost:8000/extract-custom/', {
-                    method: 'POST',
-                    body: formData
-                });
+                    const response = await fetch('http://localhost:8000/extract-custom/', {
+                        method: 'POST',
+                        body: formData
+                    });
 
-                const result = await response.json();
-                result.filename = file.name;
-                result.processing_mode = 'Custom Fields';
-                results.push(result);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    result.filename = file.name;
+                    result.processing_mode = 'Custom Fields';
+                    results.push(result);
+                } catch (error) {
+                    console.error('Processing error for file:', file.name, error);
+                    showError(`Failed to process ${file.name}: ${error.message}`);
+                    return;
+                }
             }
             
             displayCustomResults(results);
@@ -539,21 +559,31 @@
             const results = [];
             
             for (let file of selectedFiles) {
-                // For now, use standard processing but include technique information
-                const formData = new FormData();
-                formData.append('file', file);
+                try {
+                    // For now, use standard processing but include technique information
+                    const formData = new FormData();
+                    formData.append('file', file);
 
-                const response = await fetch('http://localhost:8000/upload/', {
-                    method: 'POST',
-                    body: formData
-                });
+                    const response = await fetch('http://localhost:8000/upload/', {
+                        method: 'POST',
+                        body: formData
+                    });
 
-                const result = await response.json();
-                result.filename = file.name;
-                result.processing_mode = 'Multi-Technique Analysis';
-                result.selected_techniques = selectedTechniques;
-                result.technique_count = selectedTechniques.length;
-                results.push(result);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    result.filename = file.name;
+                    result.processing_mode = 'Multi-Technique Analysis';
+                    result.selected_techniques = selectedTechniques;
+                    result.technique_count = selectedTechniques.length;
+                    results.push(result);
+                } catch (error) {
+                    console.error('Processing error for file:', file.name, error);
+                    showError(`Failed to process ${file.name}: ${error.message}`);
+                    return;
+                }
             }
             
             displayMultiTechniqueResults(results);
