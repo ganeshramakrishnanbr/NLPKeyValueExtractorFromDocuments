@@ -20,6 +20,10 @@ args = "Django Frontend"
 task = "workflow.run"
 args = "Backend API"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Enhanced Document API"
+
 [[workflows.workflow]]
 name = "Django Frontend"
 author = "agent"
@@ -38,6 +42,15 @@ task = "shell.exec"
 args = "python main_simple.py"
 waitForPort = 8000
 
+[[workflows.workflow]]
+name = "Enhanced Document API"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python enhanced_simple.py"
+waitForPort = 8001
+
 [deployment]
 run = ["sh", "-c", "python main_simple.py"]
 
@@ -48,3 +61,7 @@ externalPort = 5000
 [[ports]]
 localPort = 8000
 externalPort = 80
+
+[[ports]]
+localPort = 8001
+externalPort = 3000

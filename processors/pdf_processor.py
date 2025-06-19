@@ -7,7 +7,6 @@ import logging
 from pathlib import Path
 from typing import Dict, List, Optional
 import pdfplumber
-import fitz  # PyMuPDF
 import chardet
 
 class PDFProcessor:
@@ -20,12 +19,8 @@ class PDFProcessor:
         """Process PDF document with text extraction and metadata"""
         
         try:
-            # Primary extraction with pdfplumber
+            # Extract with pdfplumber
             text_content = await self._extract_with_pdfplumber(file_path)
-            
-            # Fallback to PyMuPDF if pdfplumber fails
-            if not text_content.strip():
-                text_content = await self._extract_with_pymupdf(file_path)
             
             # Extract metadata
             metadata = await self._extract_metadata(file_path)
@@ -59,52 +54,46 @@ class PDFProcessor:
             self.logger.warning(f"pdfplumber extraction failed: {e}")
             return ""
     
-    async def _extract_with_pymupdf(self, file_path: Path) -> str:
-        """Extract text using PyMuPDF as fallback"""
-        
-        text_parts = []
-        
+    async def _count_pages(self, file_path: Path) -> int:
+        """Count PDF pages using pdfplumber"""
         try:
-            doc = fitz.open(str(file_path))
-            
-            for page_num in range(len(doc)):
-                page = doc.load_page(page_num)
-                page_text = page.get_text()
-                if page_text.strip():
-                    text_parts.append(page_text)
-            
-            doc.close()
-            return "\n\n".join(text_parts)
-            
-        except Exception as e:
-            self.logger.warning(f"PyMuPDF extraction failed: {e}")
-            return ""
+            with pdfplumber.open(str(file_path)) as pdf:
+                return len(pdf.pages)
+        except Exception:
+            return 0
     
     async def _extract_metadata(self, file_path: Path) -> Dict:
-        """Extract PDF metadata"""
+        """Extract basic PDF metadata"""
         
-        metadata = {}
+        page_count = await self._count_pages(file_path)
         
+        metadata = {
+            'file_size': file_path.stat().st_size,
+            'file_type': 'pdf',
+            'page_count': page_count,
+            'title': '',
+            'author': '',
+            'subject': '',
+            'creator': 'PDF',
+            'producer': '',
+            'creation_date': '',
+            'modification_date': ''
+        }
+        
+        # Try to extract metadata from pdfplumber
         try:
-            doc = fitz.open(str(file_path))
-            pdf_metadata = doc.metadata
-            
-            metadata.update({
-                'title': pdf_metadata.get('title', ''),
-                'author': pdf_metadata.get('author', ''),
-                'subject': pdf_metadata.get('subject', ''),
-                'creator': pdf_metadata.get('creator', ''),
-                'producer': pdf_metadata.get('producer', ''),
-                'creation_date': pdf_metadata.get('creationDate', ''),
-                'modification_date': pdf_metadata.get('modDate', ''),
-                'page_count': len(doc),
-                'file_size': file_path.stat().st_size
-            })
-            
-            doc.close()
-            
+            with pdfplumber.open(str(file_path)) as pdf:
+                if hasattr(pdf, 'metadata') and pdf.metadata:
+                    metadata.update({
+                        'title': pdf.metadata.get('Title', ''),
+                        'author': pdf.metadata.get('Author', ''),
+                        'subject': pdf.metadata.get('Subject', ''),
+                        'creator': pdf.metadata.get('Creator', 'PDF'),
+                        'producer': pdf.metadata.get('Producer', ''),
+                        'creation_date': str(pdf.metadata.get('CreationDate', '')),
+                        'modification_date': str(pdf.metadata.get('ModDate', ''))
+                    })
         except Exception as e:
             self.logger.warning(f"Metadata extraction failed: {e}")
-            metadata = {'page_count': 0, 'file_size': file_path.stat().st_size}
         
         return metadata

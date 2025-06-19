@@ -10,11 +10,11 @@ import uvicorn
 import tempfile
 import os
 import logging
+import time
 from pathlib import Path
 from typing import Dict, List, Optional
 
 from core.document_processor import EnhancedDocumentProcessor, ProcessingOptions, ProcessingResult
-from models.document_models import EnhancedExtractionResult
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -128,25 +128,25 @@ async def upload_enhanced_document(
             result = await processor.process_document(tmp_file_path)
             
             # Convert to response format
-            response = EnhancedExtractionResult(
-                document_type=result.document_type.value,
-                text_content=result.text_content,
-                metadata=result.metadata,
-                tables=result.tables,
-                images=result.images,
-                quality_score=result.quality_score,
-                ocr_confidence=result.ocr_confidence,
-                processing_time=result.processing_time,
-                errors=result.errors,
-                processing_options={
+            response = {
+                "document_type": result.document_type.value,
+                "text_content": result.text_content,
+                "metadata": result.metadata,
+                "tables": result.tables,
+                "images": result.images,
+                "quality_score": result.quality_score,
+                "ocr_confidence": result.ocr_confidence,
+                "processing_time": result.processing_time,
+                "errors": result.errors,
+                "processing_options": {
                     "ocr_enabled": enable_ocr,
                     "tables_extracted": extract_tables,
                     "images_processed": extract_images,
                     "quality_assessed": perform_quality_check
                 }
-            )
+            }
             
-            return response.dict()
+            return response
             
         finally:
             # Clean up temporary file
