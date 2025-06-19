@@ -5,7 +5,12 @@ import uvicorn
 import tempfile
 import os
 import time
+import logging
 from pathlib import Path
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 from models import ExtractionResult, CustomerInfo, PolicyInfo, DynamicExtractionResult
 from document_processor import DocumentProcessor
 from simple_extractor import SimpleDynamicExtractor
@@ -133,11 +138,16 @@ async def extract_custom_fields(file: UploadFile = File(...), fields: str = ""):
     start_time = time.time()
     
     # Parse the fields parameter - use exactly what user requests
+    logger.info(f"Raw fields parameter received: '{fields}'")
+    logger.info(f"Fields strip check: '{fields.strip()}' - Length: {len(fields.strip())}")
+    
     if fields and fields.strip():
         field_list = [field.strip() for field in fields.split(',') if field.strip()]
+        logger.info(f"CUSTOM FIELDS PARSED: {field_list}")
     else:
         # Only use defaults if no fields specified at all
         field_list = ['name', 'email', 'phone', 'address', 'date', 'company', 'amount']
+        logger.info(f"USING DEFAULT FIELDS: {field_list}")
     
     try:
         # Validate file type
@@ -173,6 +183,7 @@ async def extract_custom_fields(file: UploadFile = File(...), fields: str = ""):
             document_type = document_processor.classify_document_type(extracted_text)
             
             # Extract custom fields
+            logger.info(f"Passing field_list to extractor: {field_list}")
             extracted_fields = dynamic_extractor.extract_custom_fields(extracted_text, field_list)
             
             # Calculate confidence score
