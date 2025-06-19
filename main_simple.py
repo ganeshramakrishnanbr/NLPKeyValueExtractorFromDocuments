@@ -14,12 +14,15 @@ logger = logging.getLogger(__name__)
 from models import ExtractionResult, CustomerInfo, PolicyInfo, DynamicExtractionResult
 from advanced_models import (
     AdvancedExtractionResult, TemplateListResponse, StateRequirementsResponse,
-    TemplateLearnRequest, TemplateLearnResponse, HealthCheckAdvanced, APIInfoAdvanced
+    TemplateLearnRequest, TemplateLearnResponse, HealthCheckAdvanced, APIInfoAdvanced,
+    TechniqueInfo, TechniqueResult, MultiTechniqueAnalysisResult, MultiTechniqueRequest,
+    TechniqueListResponse
 )
 from document_processor import DocumentProcessor
 from simple_extractor import SimpleDynamicExtractor
 from template_classifier import AdvancedTemplateClassifier
 from confidence_scorer import EnhancedConfidenceScorer
+from multi_technique_extractor import MultiTechniqueExtractor
 
 app = FastAPI(
     title="NLP Key Value Extractor From Documents", 
@@ -37,6 +40,9 @@ dynamic_extractor = SimpleDynamicExtractor()
 # Initialize Phase 2 advanced components
 template_classifier = AdvancedTemplateClassifier()
 confidence_scorer = EnhancedConfidenceScorer()
+
+# Initialize multi-technique extractor
+multi_technique_extractor = MultiTechniqueExtractor()
 
 @app.post("/upload/", response_model=ExtractionResult)
 async def upload_document(file: UploadFile = File(...)):
@@ -483,9 +489,145 @@ async def api_info():
             "Enhanced confidence scoring with multiple algorithms",
             "Organization/carrier detection",
             "Document complexity analysis",
-            "Template learning capabilities"
+            "Template learning capabilities",
+            "Multi-technique comparative analysis with 10 different extraction methods"
         ]
     }
+
+@app.get("/techniques/", response_model=TechniqueListResponse)
+async def list_available_techniques():
+    """List all available extraction techniques for comparative analysis"""
+    try:
+        techniques = multi_technique_extractor.get_available_techniques()
+        
+        technique_infos = []
+        for tech in techniques:
+            technique_infos.append(TechniqueInfo(
+                name=tech["name"],
+                display_name=tech["display_name"],
+                description=tech["description"]
+            ))
+        
+        recommended = [
+            "regex_pattern_matching",
+            "fuzzy_string_matching", 
+            "keyword_proximity_analysis",
+            "confidence_weighted_extraction"
+        ]
+        
+        return TechniqueListResponse(
+            available_techniques=technique_infos,
+            total_techniques=len(technique_infos),
+            recommended_techniques=recommended
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error retrieving techniques: {str(e)}")
+
+@app.post("/upload/multi-technique/", response_model=MultiTechniqueAnalysisResult)
+async def upload_document_multi_technique(
+    file: UploadFile = File(...), 
+    selected_techniques: str = Form(...),
+    fields: str = Form("")
+):
+    """
+    Upload and process documents using multiple extraction techniques for comparison.
+    Allows selection of specific techniques to compare their effectiveness.
+    """
+    start_time = time.time()
+    
+    # Parse techniques and fields parameters
+    technique_list = [tech.strip() for tech in selected_techniques.split(',') if tech.strip()]
+    field_list = [field.strip() for field in fields.split(',') if field.strip()] if fields.strip() else [
+        'name', 'email', 'phone', 'address', 'date', 'company', 'amount'
+    ]
+    
+    logger.info(f"Multi-technique analysis with techniques: {technique_list}")
+    logger.info(f"Extracting fields: {field_list}")
+    
+    try:
+        # Validate file type
+        if not file.filename:
+            raise HTTPException(status_code=400, detail="No filename provided")
+        
+        file_extension = Path(file.filename).suffix.lower()
+        allowed_extensions = {'.pdf', '.docx', '.doc', '.md'}
+        
+        if file_extension not in allowed_extensions:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Unsupported file type. Allowed: {', '.join(allowed_extensions)}"
+            )
+        
+        # Create temporary file for processing
+        with tempfile.NamedTemporaryFile(delete=False, suffix=file_extension) as temp_file:
+            content = await file.read()
+            temp_file.write(content)
+            temp_file_path = temp_file.name
+        
+        try:
+            # Extract text from document
+            extracted_text = document_processor.extract_text(
+                temp_file_path, 
+                file_extension[1:]
+            )
+            
+            if not extracted_text.strip():
+                raise HTTPException(status_code=400, detail="No text could be extracted from the document")
+            
+            # Run multi-technique analysis
+            analysis_results = multi_technique_extractor.extract_with_multiple_techniques(
+                extracted_text, field_list, technique_list
+            )
+            
+            # Process results into response format
+            technique_results = []
+            for technique_name in technique_list:
+                if technique_name in analysis_results["technique_results"]:
+                    # Get method details from technique
+                    method_details = f"Extraction using {technique_name.replace('_', ' ').title()}"
+                    
+                    technique_results.append(TechniqueResult(
+                        technique_name=technique_name,
+                        extracted_fields=analysis_results["technique_results"][technique_name],
+                        confidence_score=analysis_results["technique_confidence_scores"].get(technique_name, 0.0),
+                        method_details=method_details
+                    ))
+            
+            # Document summary
+            doc_type = document_processor.classify_document_type(extracted_text)
+            doc_summary = {
+                "filename": file.filename,
+                "document_type": doc_type,
+                "text_length": str(len(extracted_text)),
+                "processing_time": str(round(time.time() - start_time, 2))
+            }
+            
+            result = MultiTechniqueAnalysisResult(
+                document_summary=doc_summary,
+                technique_results=technique_results,
+                consolidated_results=analysis_results["consolidated_results"],
+                technique_confidence_scores=analysis_results["technique_confidence_scores"],
+                best_technique_per_field=analysis_results["best_technique_per_field"],
+                overall_technique_ranking=analysis_results["overall_technique_ranking"],
+                processing_time=round(time.time() - start_time, 2),
+                requested_fields=field_list,
+                selected_techniques=technique_list
+            )
+            
+            return result
+            
+        finally:
+            # Clean up temporary file
+            if os.path.exists(temp_file_path):
+                os.unlink(temp_file_path)
+                
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Error in multi-technique analysis: {str(e)}"
+        )
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

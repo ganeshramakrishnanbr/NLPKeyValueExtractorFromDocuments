@@ -159,3 +159,39 @@ class APIInfoAdvanced(BaseModel):
     endpoints: Dict[str, str] = Field(..., description="Available endpoints")
     advanced_features: List[str] = Field(..., description="Advanced capabilities")
     template_categories: List[str] = Field(..., description="Available template categories")
+
+class TechniqueInfo(BaseModel):
+    """Information about an extraction technique"""
+    name: str = Field(..., description="Technical name of the technique")
+    display_name: str = Field(..., description="User-friendly display name")
+    description: str = Field(..., description="Description of how the technique works")
+
+class TechniqueResult(BaseModel):
+    """Result from a single extraction technique"""
+    technique_name: str = Field(..., description="Name of the technique used")
+    extracted_fields: Dict[str, str] = Field(..., description="Fields extracted by this technique")
+    confidence_score: float = Field(..., ge=0.0, le=1.0, description="Confidence score for this technique")
+    method_details: str = Field(..., description="Details about the extraction method")
+
+class MultiTechniqueAnalysisResult(BaseModel):
+    """Result from multi-technique comparative analysis"""
+    document_summary: Dict[str, str] = Field(..., description="Basic document information")
+    technique_results: List[TechniqueResult] = Field(..., description="Results from each technique")
+    consolidated_results: Dict[str, str] = Field(..., description="Best consolidated extraction results")
+    technique_confidence_scores: Dict[str, float] = Field(..., description="Confidence scores for each technique")
+    best_technique_per_field: Dict[str, str] = Field(..., description="Best technique for each field")
+    overall_technique_ranking: Dict[str, int] = Field(..., description="Overall ranking of techniques")
+    processing_time: float = Field(..., description="Total processing time")
+    requested_fields: List[str] = Field(..., description="Fields that were requested")
+    selected_techniques: List[str] = Field(..., description="Techniques that were selected for analysis")
+
+class MultiTechniqueRequest(BaseModel):
+    """Request for multi-technique analysis"""
+    selected_techniques: List[str] = Field(..., description="List of techniques to use for analysis")
+    fields: Optional[str] = Field("", description="Comma-separated fields to extract")
+
+class TechniqueListResponse(BaseModel):
+    """Response listing available extraction techniques"""
+    available_techniques: List[TechniqueInfo] = Field(..., description="List of available extraction techniques")
+    total_techniques: int = Field(..., description="Total number of available techniques")
+    recommended_techniques: List[str] = Field(..., description="Recommended techniques for general use")
