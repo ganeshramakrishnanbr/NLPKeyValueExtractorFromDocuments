@@ -29,7 +29,7 @@ Access the web interface at `http://localhost:8000`
 
 ## Git Automation
 
-This repository includes automated git commit tools for efficient development workflow.
+This repository includes automated git commit tools for efficient development workflow. The automation system is fully tested and working in Replit environment.
 
 ### Available Commands
 
