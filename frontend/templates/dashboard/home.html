@@ -247,6 +247,19 @@
             </div>
         </div>
 
+        <!-- API Status Check -->
+        <div class="row mb-3">
+            <div class="col-lg-8 mx-auto">
+                <div class="alert alert-info" id="api-status-alert">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>API Status:</strong> <span id="api-status">Checking...</span>
+                    <button class="btn btn-sm btn-outline-info ms-2" onclick="checkAPIStatus()">
+                        <i class="fas fa-sync"></i> Test Connection
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Document Upload Section -->
         <div class="row mb-5">
             <div class="col-lg-8 mx-auto">
@@ -361,6 +374,47 @@
         const resultsContainer = document.getElementById('results-container');
         const processBtn = document.getElementById('process-btn');
         let selectedFiles = [];
+
+        // API Status Check Function
+        async function checkAPIStatus() {
+            const statusElement = document.getElementById('api-status');
+            const alertElement = document.getElementById('api-status-alert');
+            
+            statusElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing...';
+            alertElement.className = 'alert alert-info';
+            
+            try {
+                console.log('Testing API connection to localhost:8000...');
+                
+                const response = await fetch('http://localhost:8000/test', {
+                    method: 'GET',
+                    mode: 'cors',
+                    cache: 'no-cache',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                console.log('API Response Status:', response.status);
+                console.log('API Response OK:', response.ok);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('API Response Data:', data);
+                    statusElement.innerHTML = '<i class="fas fa-check text-success"></i> Connected Successfully';
+                    alertElement.className = 'alert alert-success';
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                console.error('API Connection Error:', error);
+                statusElement.innerHTML = `<i class="fas fa-times text-danger"></i> Connection Failed: ${error.message}`;
+                alertElement.className = 'alert alert-danger';
+            }
+        }
+
+        // Initialize API status check on page load
+        document.addEventListener('DOMContentLoaded', checkAPIStatus);
 
         // Processing mode handling
         document.querySelectorAll('input[name="processing-mode"]').forEach(radio => {
