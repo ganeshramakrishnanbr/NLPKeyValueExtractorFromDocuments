@@ -33,7 +33,7 @@ async def upload_document(file: UploadFile = File(...)):
             raise HTTPException(status_code=400, detail="No filename provided")
         
         file_extension = Path(file.filename).suffix.lower()
-        allowed_extensions = {'.pdf', '.docx', '.doc'}
+        allowed_extensions = {'.pdf', '.docx', '.doc', '.md'}
         
         if file_extension not in allowed_extensions:
             raise HTTPException(
@@ -144,7 +144,7 @@ async def extract_custom_fields(file: UploadFile = File(...), fields: str = ""):
             raise HTTPException(status_code=400, detail="No filename provided")
         
         file_extension = Path(file.filename).suffix.lower()
-        allowed_extensions = {'.pdf', '.docx', '.doc'}
+        allowed_extensions = {'.pdf', '.docx', '.doc', '.md'}
         
         if file_extension not in allowed_extensions:
             raise HTTPException(

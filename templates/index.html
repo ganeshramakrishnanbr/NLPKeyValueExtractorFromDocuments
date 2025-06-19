@@ -310,7 +310,7 @@
                 <div class="upload-icon">📁</div>
                 <h3>Upload Your Document</h3>
                 <p>Drag and drop your file here or click to browse</p>
-                <input type="file" id="fileInput" class="file-input" accept=".pdf,.docx,.doc">
+                <input type="file" id="fileInput" class="file-input" accept=".pdf,.docx,.doc,.md">
                 <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
                     Choose File
                 </button>
@@ -417,10 +417,13 @@
         });
 
         function handleFileSelect(file) {
-            const allowedTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/msword'];
+            const allowedTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/msword', 'text/markdown'];
+            const allowedExtensions = ['.pdf', '.docx', '.doc', '.md'];
             
-            if (!allowedTypes.includes(file.type)) {
-                showError('Please select a valid file format (PDF, DOCX, or DOC)');
+            const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+            
+            if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(fileExtension)) {
+                showError('Please select a valid file format (PDF, DOCX, DOC, or MD)');
                 return;
             }
 

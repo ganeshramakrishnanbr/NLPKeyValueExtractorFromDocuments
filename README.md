@@ -4,7 +4,7 @@ A powerful Python application that extracts key-value information from any docum
 
 ## Features
 
-- **Document Support**: PDF, DOCX, and DOC file formats
+- **Document Support**: PDF, DOCX, DOC, and Markdown (.md) file formats
 - **Dual Processing Modes**:
   - **Standard Fields**: Extract common information (name, email, phone, address, etc.)
   - **Custom Fields**: Specify any fields you need extracted
@@ -71,6 +71,13 @@ curl -X POST "http://localhost:8000/extract-custom/" \
   -H "Content-Type: multipart/form-data" \
   -F "file=@document.pdf" \
   -F "fields=name,email,employee_id,salary"
+```
+
+### Markdown File Processing
+```bash
+curl -X POST "http://localhost:8000/upload/" \
+  -H "Content-Type: multipart/form-data" \
+  -F "file=@README.md"
 ```
 
 ## Project Structure
