@@ -132,13 +132,12 @@ async def extract_custom_fields(file: UploadFile = File(...), fields: str = ""):
     """
     start_time = time.time()
     
-    # Parse the fields parameter
-    if not fields.strip():
-        # If no fields specified, use a default set of common fields
-        field_list = ['name', 'email', 'phone', 'address', 'date', 'company', 'amount']
-    else:
+    # Parse the fields parameter - use exactly what user requests
+    if fields and fields.strip():
         field_list = [field.strip() for field in fields.split(',') if field.strip()]
-        # Don't fallback to defaults - use exactly what the user requested
+    else:
+        # Only use defaults if no fields specified at all
+        field_list = ['name', 'email', 'phone', 'address', 'date', 'company', 'amount']
     
     try:
         # Validate file type
