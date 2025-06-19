@@ -1,20 +1,52 @@
+"""
+Document Processing Module
+
+This module provides comprehensive document processing capabilities for extracting 
+text content from various file formats including PDF, DOCX, DOC, and Markdown files.
+It also includes basic document classification functionality to categorize documents
+based on their content.
+
+Author: NLP Document Extraction Platform
+Version: 2.0.0
+"""
+
 import pdfplumber
 import docx
 import docx2txt
 from typing import Tuple
 import logging
 
-# Configure logging
+# Configure logging for document processing operations
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class DocumentProcessor:
     """
-    Document processor for extracting text from various file formats
-    and performing basic document classification.
+    Advanced document processor for multi-format text extraction and classification.
+    
+    This class handles the extraction of text content from various document formats
+    and provides intelligent document type classification based on content analysis.
+    
+    Supported Formats:
+        - PDF (.pdf): Uses pdfplumber for robust text extraction
+        - DOCX (.docx): Uses python-docx for modern Word documents  
+        - DOC (.doc): Uses docx2txt for legacy Word documents
+        - Markdown (.md): Direct text file processing
+    
+    Features:
+        - Intelligent text extraction with format-specific optimizations
+        - Document type classification using keyword analysis
+        - Error handling for corrupted or unsupported files
+        - Text preprocessing and normalization
     """
     
     def __init__(self):
+        """
+        Initialize the document processor with supported file formats.
+        
+        Sets up the processor with a list of supported file formats
+        for validation and processing purposes.
+        """
         self.supported_formats = ['pdf', 'docx', 'doc', 'md']
     
     def extract_text(self, file_path: str, file_type: str) -> str:

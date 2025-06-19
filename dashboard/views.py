@@ -1,3 +1,21 @@
+"""
+Django Dashboard Views Module
+
+This module handles all Django frontend view logic for the NLP Document Extraction
+Platform. It provides rich web interface views and proxies requests to the FastAPI
+backend for document processing.
+
+Key Components:
+- Dashboard home view with rich interface
+- Document upload handling with progress tracking
+- Custom field extraction interface
+- Multi-technique analysis views
+- Health monitoring endpoints
+
+Author: NLP Document Extraction Platform
+Version: 2.0.0
+"""
+
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -9,7 +27,7 @@ import requests
 import tempfile
 import os
 
-# FastAPI backend URL
+# FastAPI backend URL for API proxying
 FASTAPI_BASE_URL = "http://localhost:8000"
 
 def dashboard_home(request):

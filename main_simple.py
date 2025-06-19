@@ -1,3 +1,22 @@
+"""
+NLP Document Extraction API Backend
+
+This is the main FastAPI backend application that provides intelligent document
+processing capabilities through RESTful APIs. It handles document upload,
+text extraction, field identification, and advanced NLP processing features.
+
+Key Features:
+- Multi-format document processing (PDF, DOCX, DOC, MD)
+- Standard and custom field extraction
+- Multi-technique comparative analysis
+- Template learning and classification
+- State compliance checking
+- Advanced confidence scoring
+
+Author: NLP Document Extraction Platform
+Version: 2.0.0
+"""
+
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Request
 from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -8,7 +27,7 @@ import time
 import logging
 from pathlib import Path
 
-# Configure logging
+# Configure logging for API operations
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 from models import ExtractionResult, CustomerInfo, PolicyInfo, DynamicExtractionResult
