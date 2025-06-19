@@ -375,6 +375,25 @@
         const processBtn = document.getElementById('process-btn');
         let selectedFiles = [];
 
+        // Get the correct API base URL for this environment
+        function getAPIBaseURL(port = 8000) {
+            // In Replit, check if we're in the iframe environment
+            const hostname = window.location.hostname;
+            
+            if (hostname.includes('replit.')) {
+                // Extract the repl info from current URL
+                const urlParts = hostname.split('-');
+                if (urlParts.length >= 3) {
+                    const replId = urlParts.slice(1, -2).join('-');
+                    const owner = urlParts[urlParts.length - 2];
+                    return `https://${port}-${replId}.${owner}.repl.co`;
+                }
+            }
+            
+            // Fallback to localhost for local development
+            return `http://localhost:${port}`;
+        }
+
         // API Status Check Function
         async function checkAPIStatus() {
             const statusElement = document.getElementById('api-status');
@@ -383,10 +402,13 @@
             statusElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing...';
             alertElement.className = 'alert alert-info';
             
+            const apiBaseURL = getAPIBaseURL(8000);
+            console.log('Detected API Base URL:', apiBaseURL);
+            
             try {
-                console.log('Testing API connection to localhost:8000...');
+                console.log('Testing API connection...');
                 
-                const response = await fetch('http://localhost:8000/test', {
+                const response = await fetch(`${apiBaseURL}/test`, {
                     method: 'GET',
                     mode: 'cors',
                     cache: 'no-cache',
@@ -403,6 +425,9 @@
                     console.log('API Response Data:', data);
                     statusElement.innerHTML = '<i class="fas fa-check text-success"></i> Connected Successfully';
                     alertElement.className = 'alert alert-success';
+                    
+                    // Store the working API URL for later use
+                    window.apiBaseURL = apiBaseURL;
                 } else {
                     throw new Error(`HTTP ${response.status}`);
                 }
@@ -478,10 +503,13 @@
         async function processDocuments() {
             if (selectedFiles.length === 0) return;
 
+            // Get the API base URL
+            const apiURL = window.apiBaseURL || getAPIBaseURL(8000);
+
             // Test API connectivity first
             try {
                 console.log('Testing API connectivity...');
-                const healthResponse = await fetch('http://localhost:8000/health');
+                const healthResponse = await fetch(`${apiURL}/health`);
                 if (!healthResponse.ok) {
                     throw new Error(`Backend API not responding (Status: ${healthResponse.status})`);
                 }
@@ -544,7 +572,8 @@
 
                     console.log('Sending request to:', 'http://localhost:8000/upload/');
                     
-                    const response = await fetch('http://localhost:8000/upload/', {
+                    const apiURL = window.apiBaseURL || getAPIBaseURL(8000);
+                    const response = await fetch(`${apiURL}/upload/`, {
                         method: 'POST',
                         body: formData,
                         mode: 'cors'
@@ -590,7 +619,8 @@
                     formData.append('file', file);
                     formData.append('fields', customFields);
 
-                    const response = await fetch('http://localhost:8000/extract-custom/', {
+                    const apiURL = window.apiBaseURL || getAPIBaseURL(8000);
+                    const response = await fetch(`${apiURL}/extract-custom/`, {
                         method: 'POST',
                         body: formData
                     });
@@ -644,7 +674,8 @@
                     const formData = new FormData();
                     formData.append('file', file);
 
-                    const response = await fetch('http://localhost:8000/upload/', {
+                    const apiURL = window.apiBaseURL || getAPIBaseURL(8000);
+                    const response = await fetch(`${apiURL}/upload/`, {
                         method: 'POST',
                         body: formData
                     });
@@ -678,7 +709,8 @@
             } else {
                 const results = [];
                 for (let file of selectedFiles) {
-                    const result = await processSingle(file, 'http://localhost:8001/upload-enhanced/');
+                    const enhancedAPIURL = getAPIBaseURL(8001);
+                    const result = await processSingle(file, `${enhancedAPIURL}/upload-enhanced/`);
                     result.processing_mode = 'Standard + Enhanced';
                     results.push(result);
                 }
@@ -702,7 +734,8 @@
                 formData.append('file', file);
                 formData.append('fields', customFields);
 
-                const response = await fetch('http://localhost:8000/extract-custom/', {
+                const apiURL = window.apiBaseURL || getAPIBaseURL(8000);
+                const response = await fetch(`${apiURL}/extract-custom/`, {
                     method: 'POST',
                     body: formData
                 });
