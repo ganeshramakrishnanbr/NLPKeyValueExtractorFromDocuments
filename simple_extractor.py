@@ -187,9 +187,18 @@ class SimpleDynamicExtractor:
     
     def _extract_account_number(self, text: str) -> Optional[str]:
         """Extract account number"""
-        account_context = re.search(r'(?:account\s*(?:number|#|no))[:\s]*([A-Z0-9\-_]{6,15})', text, re.I)
-        if account_context:
-            return account_context.group(1).strip()
+        # Enhanced patterns for employee ID and account numbers
+        patterns = [
+            r'(?:employee\s*(?:id|identifier|number|#))[:\*\s]*([A-Z0-9\-_]{3,15})',
+            r'(?:account\s*(?:number|#|no))[:\s]*([A-Z0-9\-_]{6,15})',
+            r'(?:member\s*(?:id|number|#))[:\s]*([A-Z0-9\-_]{3,15})',
+            r'(?:policy\s*(?:id|number|#))[:\s]*([A-Z0-9\-_]{3,15})',
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, text, re.I)
+            if match:
+                return match.group(1).strip()
         return None
     
     def _extract_currency_amount(self, text: str) -> Optional[str]:
@@ -223,6 +232,7 @@ class SimpleDynamicExtractor:
     def _extract_contextual_field(self, text: str, field_name: str) -> Optional[str]:
         """Generic contextual extraction for custom field names"""
         field_patterns = [
+            rf'\*\*{re.escape(field_name)}\*\*[:\s]*([^\n\r]+?)(?:\n|\r|$)',
             rf'(?:{re.escape(field_name)})[:\s]+([^\n\r]+?)(?:\n|\r|$)',
             rf'(?:{re.escape(field_name)})[:\s]+([^,;]+)',
             rf'{re.escape(field_name)}:\s*([^\n]+)',
@@ -231,6 +241,7 @@ class SimpleDynamicExtractor:
         field_name_spaces = field_name.replace('_', ' ')
         if field_name_spaces != field_name:
             field_patterns.extend([
+                rf'\*\*{re.escape(field_name_spaces)}\*\*[:\s]*([^\n\r]+?)(?:\n|\r|$)',
                 rf'(?:{re.escape(field_name_spaces)})[:\s]+([^\n\r]+?)(?:\n|\r|$)',
                 rf'(?:{re.escape(field_name_spaces)})[:\s]+([^,;]+)',
                 rf'{re.escape(field_name_spaces)}:\s*([^\n]+)',
