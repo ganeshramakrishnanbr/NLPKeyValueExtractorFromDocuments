@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException, Request
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Request
 from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
 import uvicorn
@@ -130,7 +130,7 @@ async def upload_document(file: UploadFile = File(...)):
         )
 
 @app.post("/extract-custom/", response_model=DynamicExtractionResult)
-async def extract_custom_fields(file: UploadFile = File(...), fields: str = ""):
+async def extract_custom_fields(file: UploadFile = File(...), fields: str = Form("")):
     """
     Upload and process documents (PDF, DOCX, DOC, MD) with custom field extraction.
     Specify which fields to extract in the 'fields' parameter as comma-separated values.
