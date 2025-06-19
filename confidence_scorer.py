@@ -63,8 +63,8 @@ class EnhancedConfidenceScorer:
     
     def calculate_ensemble_confidence(self, 
                                     extracted_data: Dict, 
-                                    template_classification: Dict = None,
-                                    processing_metadata: Dict = None) -> Dict:
+                                    template_classification: Optional[Dict] = None,
+                                    processing_metadata: Optional[Dict] = None) -> Dict:
         """
         Calculate confidence using ensemble of multiple algorithms
         """
@@ -76,7 +76,7 @@ class EnhancedConfidenceScorer:
             validation_confidence = self._calculate_validation_confidence(extracted_data)
             
             # Algorithm 3: Template matching confidence
-            template_confidence = self._calculate_template_confidence(template_classification)
+            template_confidence = self._calculate_template_confidence(template_classification or {})
             
             # Algorithm 4: Data quality confidence
             quality_confidence = self._calculate_data_quality_confidence(extracted_data)
@@ -338,7 +338,7 @@ class EnhancedConfidenceScorer:
                     except:
                         consistency_scores.append(0.5)
         
-        return np.mean(consistency_scores) if consistency_scores else 0.8
+        return statistics.mean(consistency_scores) if consistency_scores else 0.8
     
     def _assess_risk_factors(self, extracted_data: Dict, overall_confidence: float) -> Dict:
         """Assess risk factors that might require manual review"""

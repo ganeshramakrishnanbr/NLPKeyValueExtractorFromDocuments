@@ -232,7 +232,7 @@ class AdvancedTemplateClassifier:
                 sub_scores[sub_cat] = score
             
             if sub_scores and max(sub_scores.values()) > 0:
-                return max(sub_scores, key=sub_scores.get)
+                return max(sub_scores.keys(), key=lambda k: sub_scores[k])
         
         return "standard"
     
@@ -422,7 +422,7 @@ class AdvancedTemplateClassifier:
             "classification_confidence": 0.3
         }
     
-    def learn_new_template(self, text: str, template_name: str, category: str = None) -> bool:
+    def learn_new_template(self, text: str, template_name: str, category: Optional[str] = None) -> bool:
         """Learn and store new template patterns"""
         try:
             # Extract keywords for the new template
@@ -431,7 +431,7 @@ class AdvancedTemplateClassifier:
             # Store template information
             template_info = {
                 "keywords": keywords,
-                "category": category or "custom",
+                "category": category if category is not None else "custom",
                 "length": len(text),
                 "complexity": self._analyze_document_complexity(text)
             }

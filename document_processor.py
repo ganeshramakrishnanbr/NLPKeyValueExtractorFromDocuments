@@ -216,7 +216,7 @@ class DocumentProcessor:
         
         # Return the document type with the highest score
         if type_scores:
-            best_match = max(type_scores, key=type_scores.get)
+            best_match = max(type_scores.keys(), key=lambda k: type_scores[k])
             logger.info(f"Document classified as: {best_match} (score: {type_scores[best_match]})")
             return best_match
         

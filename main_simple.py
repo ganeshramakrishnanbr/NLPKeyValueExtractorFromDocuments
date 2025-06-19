@@ -375,7 +375,7 @@ async def learn_new_template(request: TemplateLearnRequest):
         success = template_classifier.learn_new_template(
             request.sample_text, 
             request.template_name,
-            request.category
+            request.category or "custom"
         )
         
         if success:
