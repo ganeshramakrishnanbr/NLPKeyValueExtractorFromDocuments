@@ -71,24 +71,49 @@ class SimpleDynamicExtractor:
             'company': self._extract_company,
             'organization': self._extract_company,
             'employer': self._extract_company,
+            'department': self._extract_company,
+            'business': self._extract_company,
+            'firm': self._extract_company,
+            'salary': self._extract_currency_amount,
+            'wage': self._extract_currency_amount,
+            'employee_id': self._extract_account_number,
+            'customer_id': self._extract_account_number,
+            'id_number': self._extract_account_number,
+            'start_date': self._extract_date,
+            'end_date': self._extract_date,
+            'hire_date': self._extract_date,
+            'position': self._extract_contextual_field,
+            'title': self._extract_contextual_field,
+            'job_title': self._extract_contextual_field,
+            'manager': self._extract_name,
+            'supervisor': self._extract_name,
         }
     
     def extract_custom_fields(self, text: str, field_list: List[str]) -> Dict[str, Any]:
-        """Extract custom fields from text"""
+        """Extract custom fields from text - returns exactly the requested fields"""
         results = {}
         
+        # Initialize all requested fields with None
         for field in field_list:
-            field_lower = field.lower().replace(' ', '_')
+            results[field.strip()] = None
+        
+        # Extract values for each requested field
+        for field in field_list:
+            field_clean = field.strip()
+            field_lower = field_clean.lower().replace(' ', '_')
             
             if field_lower in self.extraction_strategies:
                 value = self.extraction_strategies[field_lower](text)
             else:
-                value = self._extract_contextual_field(text, field)
+                value = self._extract_contextual_field(text, field_clean)
             
-            results[field] = value
+            # Only assign if we found a value
+            if value:
+                results[field_clean] = value
         
         extracted_fields = [k for k, v in results.items() if v]
-        logger.info(f"Extracted fields: {extracted_fields}")
+        logger.info(f"Requested fields: {field_list}")
+        logger.info(f"Successfully extracted: {extracted_fields}")
         
         return results
     
