@@ -247,10 +247,16 @@ async def health_check():
         "timestamp": time.time()
     }
 
-@app.get("/", response_class=HTMLResponse)
-async def root(request: Request):
-    """Serve the main web interface"""
-    return templates.TemplateResponse("index.html", {"request": request})
+@app.get("/")
+async def root():
+    """API backend - web interface moved to Django frontend"""
+    return {
+        "message": "NLP Document Extraction API Backend",
+        "status": "active",
+        "web_interface": "http://localhost:5000",
+        "api_documentation": "/docs",
+        "note": "Please use the Django frontend at http://localhost:5000 for the web interface"
+    }
 
 @app.post("/upload/advanced/", response_model=AdvancedExtractionResult)
 async def upload_document_advanced(file: UploadFile = File(...), fields: str = Form("")):

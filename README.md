@@ -58,10 +58,12 @@ python main_simple.py
 ```
 
 ### Access Points
-- **Django Dashboard**: `http://localhost:5000` - Rich modern interface
-- **FastAPI Backend**: `http://localhost:8000` - NLP processing engine
+- **Main Application**: `http://localhost:5000` - Django Dashboard (Use this for the web interface)
+- **Backend API**: `http://localhost:8000` - FastAPI NLP processing engine (API only)
 - **API Documentation**: Available at `http://localhost:8000/docs` (Swagger UI)
 - **Health Check**: `/api/health/` endpoint for monitoring both services
+
+> **Important**: Always use `http://localhost:5000` for the web interface. The FastAPI backend at port 8000 is for API calls only.
 
 ## Architecture
 
