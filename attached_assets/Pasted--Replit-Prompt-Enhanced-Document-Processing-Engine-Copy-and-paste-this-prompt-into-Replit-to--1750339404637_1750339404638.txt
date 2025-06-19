@@ -1,0 +1,754 @@
+# Replit Prompt: Enhanced Document Processing Engine
+
+**Copy and paste this prompt into Replit to implement the Enhanced Document Processing Engine:**
+
+---
+
+```
+Create a comprehensive Enhanced Document Processing Engine with multi-format support, OCR capabilities, and advanced preprocessing features using 100% open source technologies.
+
+## CORE REQUIREMENTS:
+
+Build a production-ready document processing system that supports:
+- Multiple document formats: PDF, DOCX, DOC, TXT, RTF, HTML
+- OCR integration for scanned documents using Tesseract and EasyOCR
+- Document preprocessing with OpenCV and PIL
+- Table extraction using Camelot and Tabula-py
+- Image processing and enhancement
+- Document quality assessment
+- Metadata extraction and analysis
+
+## TECHNOLOGY STACK (Open Source Only):
+
+### Document Processing Libraries:
+```python
+# Core document processing
+pdfplumber==0.9.0          # PDF text extraction
+PyMuPDF==1.23.8            # Alternative PDF processing (fitz)
+python-docx==0.8.11        # DOCX processing
+python-docx2txt==0.8       # Legacy DOC files
+beautifulsoup4==4.12.2     # HTML processing
+striprtf==0.0.26           # RTF processing
+
+# OCR Libraries
+pytesseract==0.3.10        # Tesseract OCR integration
+easyocr==1.7.0             # EasyOCR for multiple languages
+Pillow==10.1.0             # Image processing
+
+# Image Processing
+opencv-python==4.8.1.78    # Computer vision and image processing
+numpy==1.25.2              # Numerical operations
+
+# Table Extraction
+camelot-py[cv]==0.10.1     # PDF table extraction
+tabula-py==2.8.2           # Alternative table extraction
+pandas==2.1.3              # Data manipulation
+
+# Additional Utilities
+python-magic==0.4.27       # File type detection
+chardet==5.2.0             # Character encoding detection
+```
+
+### FastAPI Integration:
+```python
+fastapi==0.104.1
+uvicorn==0.24.0
+python-multipart==0.0.6
+aiofiles==23.2.1
+```
+
+## PROJECT STRUCTURE:
+
+Create the following file structure:
+```
+enhanced_document_processor/
+├── main.py                           # FastAPI application
+├── core/
+│   ├── __init__.py
+│   ├── document_processor.py         # Main processing engine
+│   ├── ocr_processor.py             # OCR functionality
+│   ├── table_extractor.py          # Table extraction
+│   ├── image_processor.py          # Image processing
+│   └── quality_assessor.py         # Document quality analysis
+├── processors/
+│   ├── __init__.py
+│   ├── pdf_processor.py            # PDF-specific processing
+│   ├── docx_processor.py           # DOCX processing
+│   ├── html_processor.py           # HTML processing
+│   ├── txt_processor.py            # Text file processing
+│   └── rtf_processor.py            # RTF processing
+├── models/
+│   ├── __init__.py
+│   ├── document_models.py          # Pydantic models
+│   └── processing_results.py      # Result models
+├── utils/
+│   ├── __init__.py
+│   ├── file_utils.py              # File handling utilities
+│   ├── validation.py              # Input validation
+│   └── config.py                  # Configuration settings
+├── tests/
+│   ├── __init__.py
+│   ├── test_document_processor.py
+│   └── sample_documents/          # Test documents
+├── requirements.txt
+└── README.md
+```
+
+## CORE IMPLEMENTATION:
+
+### 1. Main Document Processor (core/document_processor.py):
+```python
+import asyncio
+import logging
+from pathlib import Path
+from typing import Dict, List, Optional, Union, Tuple
+import magic
+import chardet
+from dataclasses import dataclass
+from enum import Enum
+
+from processors.pdf_processor import PDFProcessor
+from processors.docx_processor import DOCXProcessor
+from processors.html_processor import HTMLProcessor
+from processors.txt_processor import TXTProcessor
+from processors.rtf_processor import RTFProcessor
+from core.ocr_processor import OCRProcessor
+from core.table_extractor import TableExtractor
+from core.image_processor import ImageProcessor
+from core.quality_assessor import QualityAssessor
+
+class DocumentType(Enum):
+    PDF = "pdf"
+    DOCX = "docx" 
+    DOC = "doc"
+    HTML = "html"
+    TXT = "txt"
+    RTF = "rtf"
+    UNKNOWN = "unknown"
+
+@dataclass
+class ProcessingOptions:
+    """Configuration options for document processing"""
+    enable_ocr: bool = True
+    extract_tables: bool = True
+    extract_images: bool = True
+    enhance_images: bool = True
+    perform_quality_check: bool = True
+    ocr_languages: List[str] = None
+    confidence_threshold: float = 0.7
+    
+    def __post_init__(self):
+        if self.ocr_languages is None:
+            self.ocr_languages = ['en']
+
+@dataclass 
+class ProcessingResult:
+    """Container for document processing results"""
+    text_content: str
+    document_type: DocumentType
+    metadata: Dict
+    tables: List[Dict] = None
+    images: List[Dict] = None
+    quality_score: float = 0.0
+    ocr_confidence: float = 0.0
+    processing_time: float = 0.0
+    errors: List[str] = None
+    
+    def __post_init__(self):
+        if self.tables is None:
+            self.tables = []
+        if self.images is None:
+            self.images = []
+        if self.errors is None:
+            self.errors = []
+
+class EnhancedDocumentProcessor:
+    """
+    Enhanced document processing engine with multi-format support,
+    OCR capabilities, and advanced preprocessing features.
+    """
+    
+    def __init__(self, processing_options: ProcessingOptions = None):
+        self.options = processing_options or ProcessingOptions()
+        self.logger = logging.getLogger(__name__)
+        
+        # Initialize specialized processors
+        self.pdf_processor = PDFProcessor()
+        self.docx_processor = DOCXProcessor()
+        self.html_processor = HTMLProcessor()
+        self.txt_processor = TXTProcessor()
+        self.rtf_processor = RTFProcessor()
+        
+        # Initialize enhancement processors
+        self.ocr_processor = OCRProcessor(languages=self.options.ocr_languages)
+        self.table_extractor = TableExtractor()
+        self.image_processor = ImageProcessor()
+        self.quality_assessor = QualityAssessor()
+        
+        # File type mapping
+        self.processors = {
+            DocumentType.PDF: self.pdf_processor,
+            DocumentType.DOCX: self.docx_processor,
+            DocumentType.DOC: self.docx_processor,  # DOC uses same processor
+            DocumentType.HTML: self.html_processor,
+            DocumentType.TXT: self.txt_processor,
+            DocumentType.RTF: self.rtf_processor
+        }
+    
+    async def process_document(self, file_path: Union[str, Path]) -> ProcessingResult:
+        """
+        Process a document through the complete enhancement pipeline
+        """
+        start_time = asyncio.get_event_loop().time()
+        
+        try:
+            file_path = Path(file_path)
+            
+            # Step 1: Detect document type and validate
+            doc_type = self._detect_document_type(file_path)
+            if doc_type == DocumentType.UNKNOWN:
+                raise ValueError(f"Unsupported document type: {file_path.suffix}")
+            
+            # Step 2: Basic document processing
+            processor = self.processors[doc_type]
+            basic_result = await processor.process(file_path)
+            
+            # Step 3: Quality assessment
+            quality_score = 0.0
+            if self.options.perform_quality_check:
+                quality_score = await self.quality_assessor.assess_quality(
+                    basic_result, file_path
+                )
+            
+            # Step 4: OCR processing for scanned documents or poor quality
+            ocr_confidence = 0.0
+            enhanced_text = basic_result.text_content
+            
+            if self.options.enable_ocr and (quality_score < 0.5 or len(enhanced_text.strip()) < 100):
+                self.logger.info("Applying OCR processing")
+                ocr_result = await self.ocr_processor.process_document(file_path)
+                if ocr_result.confidence > self.options.confidence_threshold:
+                    enhanced_text = ocr_result.text
+                    ocr_confidence = ocr_result.confidence
+            
+            # Step 5: Table extraction
+            tables = []
+            if self.options.extract_tables and doc_type == DocumentType.PDF:
+                tables = await self.table_extractor.extract_tables(file_path)
+            
+            # Step 6: Image extraction and processing
+            images = []
+            if self.options.extract_images:
+                images = await self.image_processor.extract_and_process_images(
+                    file_path, enhance=self.options.enhance_images
+                )
+            
+            # Step 7: Compile final result
+            processing_time = asyncio.get_event_loop().time() - start_time
+            
+            result = ProcessingResult(
+                text_content=enhanced_text,
+                document_type=doc_type,
+                metadata=basic_result.metadata,
+                tables=tables,
+                images=images,
+                quality_score=quality_score,
+                ocr_confidence=ocr_confidence,
+                processing_time=processing_time
+            )
+            
+            self.logger.info(
+                f"Document processed successfully in {processing_time:.2f}s "
+                f"(Quality: {quality_score:.2f}, OCR: {ocr_confidence:.2f})"
+            )
+            
+            return result
+            
+        except Exception as e:
+            self.logger.error(f"Document processing failed: {str(e)}")
+            raise
+    
+    def _detect_document_type(self, file_path: Path) -> DocumentType:
+        """Detect document type using file extension and magic numbers"""
+        
+        # Primary detection by extension
+        extension = file_path.suffix.lower()
+        extension_mapping = {
+            '.pdf': DocumentType.PDF,
+            '.docx': DocumentType.DOCX,
+            '.doc': DocumentType.DOC,
+            '.html': DocumentType.HTML,
+            '.htm': DocumentType.HTML,
+            '.txt': DocumentType.TXT,
+            '.rtf': DocumentType.RTF
+        }
+        
+        if extension in extension_mapping:
+            # Verify with magic number detection
+            try:
+                file_type = magic.from_file(str(file_path), mime=True)
+                if self._verify_mime_type(file_type, extension_mapping[extension]):
+                    return extension_mapping[extension]
+            except Exception as e:
+                self.logger.warning(f"Magic number detection failed: {e}")
+                # Fall back to extension-based detection
+                return extension_mapping.get(extension, DocumentType.UNKNOWN)
+        
+        return DocumentType.UNKNOWN
+    
+    def _verify_mime_type(self, mime_type: str, expected_type: DocumentType) -> bool:
+        """Verify mime type matches expected document type"""
+        mime_mapping = {
+            DocumentType.PDF: ['application/pdf'],
+            DocumentType.DOCX: [
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            ],
+            DocumentType.DOC: ['application/msword'],
+            DocumentType.HTML: ['text/html'],
+            DocumentType.TXT: ['text/plain'],
+            DocumentType.RTF: ['application/rtf', 'text/rtf']
+        }
+        
+        expected_mimes = mime_mapping.get(expected_type, [])
+        return mime_type in expected_mimes
+    
+    async def process_batch(self, file_paths: List[Union[str, Path]]) -> List[ProcessingResult]:
+        """Process multiple documents concurrently"""
+        
+        tasks = [self.process_document(file_path) for file_path in file_paths]
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        
+        # Handle exceptions in results
+        processed_results = []
+        for i, result in enumerate(results):
+            if isinstance(result, Exception):
+                self.logger.error(f"Failed to process {file_paths[i]}: {result}")
+                # Create error result
+                error_result = ProcessingResult(
+                    text_content="",
+                    document_type=DocumentType.UNKNOWN,
+                    metadata={},
+                    errors=[str(result)]
+                )
+                processed_results.append(error_result)
+            else:
+                processed_results.append(result)
+        
+        return processed_results
+```
+
+### 2. OCR Processor (core/ocr_processor.py):
+```python
+import asyncio
+import cv2
+import numpy as np
+from PIL import Image, ImageEnhance, ImageFilter
+import pytesseract
+import easyocr
+from typing import List, Optional, Tuple
+from dataclasses import dataclass
+
+@dataclass
+class OCRResult:
+    text: str
+    confidence: float
+    method: str
+    processing_time: float
+    word_confidences: List[float] = None
+
+class OCRProcessor:
+    """OCR processing with multiple engines and image enhancement"""
+    
+    def __init__(self, languages: List[str] = None):
+        self.languages = languages or ['en']
+        self.easyocr_reader = easyocr.Reader(self.languages)
+        
+        # Tesseract configuration
+        self.tesseract_config = '--oem 3 --psm 6 -c tessedit_char_whitelist=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz .,!?-:;()[]"\'$%&@#'
+    
+    async def process_document(self, file_path) -> OCRResult:
+        """Process document with OCR using best available method"""
+        
+        start_time = asyncio.get_event_loop().time()
+        
+        # Convert document to images
+        images = await self._document_to_images(file_path)
+        
+        # Try multiple OCR methods and choose best result
+        results = []
+        
+        for image in images:
+            # Enhance image for better OCR
+            enhanced_image = self._enhance_image_for_ocr(image)
+            
+            # Try Tesseract
+            tesseract_result = await self._tesseract_ocr(enhanced_image)
+            results.append(tesseract_result)
+            
+            # Try EasyOCR
+            easyocr_result = await self._easyocr_ocr(enhanced_image)
+            results.append(easyocr_result)
+        
+        # Select best result based on confidence
+        best_result = max(results, key=lambda x: x.confidence)
+        
+        processing_time = asyncio.get_event_loop().time() - start_time
+        best_result.processing_time = processing_time
+        
+        return best_result
+    
+    async def _document_to_images(self, file_path) -> List[np.ndarray]:
+        """Convert document to images for OCR processing"""
+        
+        if str(file_path).endswith('.pdf'):
+            import fitz  # PyMuPDF
+            doc = fitz.open(file_path)
+            images = []
+            
+            for page_num in range(doc.page_count):
+                page = doc[page_num]
+                mat = fitz.Matrix(2.0, 2.0)  # High resolution
+                pix = page.get_pixmap(matrix=mat)
+                img_data = pix.tobytes("ppm")
+                
+                # Convert to OpenCV format
+                nparr = np.frombuffer(img_data, np.uint8)
+                image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+                images.append(image)
+            
+            doc.close()
+            return images
+        else:
+            # For other formats, convert to image
+            image = cv2.imread(str(file_path))
+            return [image] if image is not None else []
+    
+    def _enhance_image_for_ocr(self, image: np.ndarray) -> np.ndarray:
+        """Enhance image quality for better OCR results"""
+        
+        # Convert to grayscale
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        
+        # Noise reduction
+        denoised = cv2.fastNlMeansDenoising(gray)
+        
+        # Increase contrast
+        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
+        enhanced = clahe.apply(denoised)
+        
+        # Sharpen image
+        kernel = np.array([[-1,-1,-1], [-1,9,-1], [-1,-1,-1]])
+        sharpened = cv2.filter2D(enhanced, -1, kernel)
+        
+        # Binarization with adaptive threshold
+        binary = cv2.adaptiveThreshold(
+            sharpened, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2
+        )
+        
+        return binary
+    
+    async def _tesseract_ocr(self, image: np.ndarray) -> OCRResult:
+        """Perform OCR using Tesseract"""
+        
+        try:
+            # Get text with confidence scores
+            data = pytesseract.image_to_data(
+                image, 
+                config=self.tesseract_config,
+                output_type=pytesseract.Output.DICT
+            )
+            
+            # Extract text and calculate confidence
+            text_parts = []
+            confidences = []
+            
+            for i, word in enumerate(data['text']):
+                if word.strip():
+                    text_parts.append(word)
+                    confidences.append(data['conf'][i])
+            
+            text = ' '.join(text_parts)
+            avg_confidence = np.mean(confidences) / 100.0 if confidences else 0.0
+            
+            return OCRResult(
+                text=text,
+                confidence=avg_confidence,
+                method="tesseract",
+                processing_time=0,
+                word_confidences=confidences
+            )
+            
+        except Exception as e:
+            return OCRResult(
+                text="",
+                confidence=0.0,
+                method="tesseract",
+                processing_time=0
+            )
+    
+    async def _easyocr_ocr(self, image: np.ndarray) -> OCRResult:
+        """Perform OCR using EasyOCR"""
+        
+        try:
+            results = self.easyocr_reader.readtext(image)
+            
+            text_parts = []
+            confidences = []
+            
+            for (bbox, text, confidence) in results:
+                text_parts.append(text)
+                confidences.append(confidence)
+            
+            text = ' '.join(text_parts)
+            avg_confidence = np.mean(confidences) if confidences else 0.0
+            
+            return OCRResult(
+                text=text,
+                confidence=avg_confidence,
+                method="easyocr",
+                processing_time=0,
+                word_confidences=confidences
+            )
+            
+        except Exception as e:
+            return OCRResult(
+                text="",
+                confidence=0.0,
+                method="easyocr", 
+                processing_time=0
+            )
+```
+
+### 3. FastAPI Application (main.py):
+```python
+from fastapi import FastAPI, UploadFile, File, HTTPException, BackgroundTasks
+from fastapi.responses import JSONResponse
+import uvicorn
+import aiofiles
+from pathlib import Path
+import tempfile
+import logging
+
+from core.document_processor import EnhancedDocumentProcessor, ProcessingOptions
+from models.document_models import ProcessingResponse, ProcessingOptionsModel
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+app = FastAPI(
+    title="Enhanced Document Processing Engine",
+    description="Multi-format document processing with OCR, table extraction, and image processing",
+    version="1.1.0"
+)
+
+# Initialize global processor
+processor = EnhancedDocumentProcessor()
+
+@app.post("/process-document/", response_model=ProcessingResponse)
+async def process_document(
+    file: UploadFile = File(...),
+    enable_ocr: bool = True,
+    extract_tables: bool = True,
+    extract_images: bool = True,
+    enhance_images: bool = True,
+    confidence_threshold: float = 0.7
+):
+    """
+    Process a document with enhanced capabilities including OCR, table extraction, and image processing
+    """
+    
+    if not file.filename:
+        raise HTTPException(status_code=400, detail="No file provided")
+    
+    # Create processing options
+    options = ProcessingOptions(
+        enable_ocr=enable_ocr,
+        extract_tables=extract_tables,
+        extract_images=extract_images,
+        enhance_images=enhance_images,
+        confidence_threshold=confidence_threshold
+    )
+    
+    # Create custom processor with options
+    custom_processor = EnhancedDocumentProcessor(options)
+    
+    # Save uploaded file temporarily
+    with tempfile.NamedTemporaryFile(delete=False, suffix=Path(file.filename).suffix) as tmp_file:
+        content = await file.read()
+        tmp_file.write(content)
+        tmp_file_path = tmp_file.name
+    
+    try:
+        # Process document
+        result = await custom_processor.process_document(tmp_file_path)
+        
+        # Prepare response
+        response = ProcessingResponse(
+            success=True,
+            filename=file.filename,
+            document_type=result.document_type.value,
+            text_content=result.text_content,
+            metadata=result.metadata,
+            tables_count=len(result.tables),
+            images_count=len(result.images),
+            quality_score=result.quality_score,
+            ocr_confidence=result.ocr_confidence,
+            processing_time=result.processing_time,
+            tables=result.tables,
+            images=result.images
+        )
+        
+        return response
+        
+    except Exception as e:
+        logger.error(f"Processing failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Processing failed: {str(e)}")
+    
+    finally:
+        # Cleanup temporary file
+        Path(tmp_file_path).unlink(missing_ok=True)
+
+@app.post("/process-batch/")
+async def process_batch_documents(
+    files: list[UploadFile] = File(...),
+    background_tasks: BackgroundTasks = None
+):
+    """
+    Process multiple documents in batch
+    """
+    
+    if len(files) > 50:  # Limit batch size
+        raise HTTPException(status_code=400, detail="Maximum 50 files per batch")
+    
+    results = []
+    
+    for file in files:
+        try:
+            # Save file temporarily
+            with tempfile.NamedTemporaryFile(delete=False, suffix=Path(file.filename).suffix) as tmp_file:
+                content = await file.read()
+                tmp_file.write(content)
+                tmp_file_path = tmp_file.name
+            
+            # Process document
+            result = await processor.process_document(tmp_file_path)
+            
+            results.append({
+                "filename": file.filename,
+                "success": True,
+                "document_type": result.document_type.value,
+                "text_length": len(result.text_content),
+                "quality_score": result.quality_score,
+                "processing_time": result.processing_time
+            })
+            
+            # Cleanup
+            Path(tmp_file_path).unlink(missing_ok=True)
+            
+        except Exception as e:
+            results.append({
+                "filename": file.filename,
+                "success": False,
+                "error": str(e)
+            })
+    
+    return {"batch_results": results}
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint"""
+    return {"status": "healthy", "version": "1.1.0"}
+
+@app.get("/supported-formats")
+async def supported_formats():
+    """Get list of supported document formats"""
+    return {
+        "supported_formats": [
+            "PDF (.pdf)",
+            "Microsoft Word (.docx, .doc)", 
+            "HTML (.html, .htm)",
+            "Plain Text (.txt)",
+            "Rich Text Format (.rtf)"
+        ],
+        "features": {
+            "ocr_support": True,
+            "table_extraction": True,
+            "image_processing": True,
+            "quality_assessment": True,
+            "batch_processing": True
+        }
+    }
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+```
+
+## SETUP INSTRUCTIONS:
+
+### 1. Install System Dependencies (Run in Replit Shell):
+```bash
+# Install Tesseract OCR
+sudo apt-get update
+sudo apt-get install -y tesseract-ocr tesseract-ocr-eng
+sudo apt-get install -y libmagic1
+
+# Install OpenCV dependencies
+sudo apt-get install -y libgl1-mesa-glx libglib2.0-0
+```
+
+### 2. Install Python Dependencies:
+```bash
+pip install pdfplumber PyMuPDF python-docx python-docx2txt beautifulsoup4 striprtf
+pip install pytesseract easyocr Pillow opencv-python numpy
+pip install camelot-py[cv] tabula-py pandas
+pip install python-magic chardet
+pip install fastapi uvicorn python-multipart aiofiles
+```
+
+### 3. Test Installation:
+```python
+# Create test_installation.py
+import pytesseract
+import cv2
+import easyocr
+import pdfplumber
+
+print("✅ All dependencies installed successfully!")
+print(f"Tesseract version: {pytesseract.get_tesseract_version()}")
+print(f"OpenCV version: {cv2.__version__}")
+print("🚀 Ready to process documents!")
+```
+
+## TESTING AND USAGE:
+
+### 1. Start the Server:
+```bash
+python main.py
+```
+
+### 2. Test with Sample Documents:
+- Upload various document formats (PDF, DOCX, HTML, TXT)
+- Test OCR with scanned documents
+- Verify table extraction from PDF files
+- Check image processing capabilities
+
+### 3. API Endpoints:
+- `POST /process-document/` - Process single document
+- `POST /process-batch/` - Process multiple documents
+- `GET /supported-formats` - List supported formats
+- `GET /health` - Health check
+
+## EXPECTED FEATURES:
+
+✅ **Multi-Format Support**: Process PDF, DOCX, DOC, HTML, TXT, RTF files
+✅ **OCR Integration**: Tesseract and EasyOCR with image enhancement
+✅ **Table Extraction**: Extract tables from PDF documents
+✅ **Image Processing**: Extract and enhance images from documents
+✅ **Quality Assessment**: Document quality scoring and validation
+✅ **Batch Processing**: Handle multiple documents concurrently
+✅ **Real-time API**: FastAPI with async processing
+✅ **Error Handling**: Comprehensive error handling and logging
+
+This enhanced document processing engine provides enterprise-grade capabilities using 100% open source technologies, supporting multiple formats with advanced OCR, table extraction, and image processing features.
+```
