@@ -84,57 +84,138 @@
 
     <!-- Main Content -->
     <div class="container my-5">
+        <!-- Processing Mode Selection -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="mb-0"><i class="fas fa-cogs me-2"></i>Processing Mode</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="processing-mode" id="standard-mode" value="standard" checked>
+                                    <label class="form-check-label" for="standard-mode">
+                                        <strong>Standard Processing</strong><br>
+                                        <small class="text-muted">Basic field extraction (Name, SSN, DOB, etc.)</small>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="processing-mode" id="custom-mode" value="custom">
+                                    <label class="form-check-label" for="custom-mode">
+                                        <strong>Custom Fields</strong><br>
+                                        <small class="text-muted">Extract user-defined fields</small>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="processing-mode" id="multi-technique-mode" value="multi-technique">
+                                    <label class="form-check-label" for="multi-technique-mode">
+                                        <strong>Multi-Technique</strong><br>
+                                        <small class="text-muted">Advanced comparative analysis</small>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="processing-mode" id="enhanced-mode" value="enhanced">
+                                    <label class="form-check-label" for="enhanced-mode">
+                                        <strong>Enhanced Processing</strong><br>
+                                        <small class="text-muted">Table extraction, quality assessment</small>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Custom Fields Input (Hidden by default) -->
+        <div class="row mb-4 d-none" id="custom-fields-section">
+            <div class="col-lg-8 mx-auto">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-list me-2"></i>Custom Fields to Extract</h5>
+                    </div>
+                    <div class="card-body">
+                        <textarea class="form-control" id="custom-fields-input" rows="3" 
+                                  placeholder="Enter fields to extract (comma-separated)&#10;Example: contract_number, effective_date, total_amount, signature_date"></textarea>
+                        <small class="form-text text-muted">Specify the exact field names you want to extract from the document</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enhanced Processing Options (Hidden by default) -->
+        <div class="row mb-4 d-none" id="enhanced-options-section">
+            <div class="col-lg-8 mx-auto">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-magic me-2"></i>Enhanced Processing Options</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="extract-tables" checked>
+                                    <label class="form-check-label" for="extract-tables">
+                                        Extract Tables from PDFs
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="quality-check" checked>
+                                    <label class="form-check-label" for="quality-check">
+                                        Document Quality Assessment
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="extract-metadata" checked>
+                                    <label class="form-check-label" for="extract-metadata">
+                                        Comprehensive Metadata Extraction
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="batch-mode">
+                                    <label class="form-check-label" for="batch-mode">
+                                        Batch Processing Mode
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Document Upload Section -->
         <div class="row mb-5">
             <div class="col-lg-8 mx-auto">
                 <div class="card">
                     <div class="card-header bg-primary text-white">
-                        <h4 class="mb-0"><i class="fas fa-upload me-2"></i>Enhanced Document Processing</h4>
+                        <h4 class="mb-0"><i class="fas fa-upload me-2"></i>Document Upload</h4>
                     </div>
                     <div class="card-body">
                         <div class="upload-area" id="upload-area">
                             <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
                             <h5>Drop files here or click to upload</h5>
-                            <p class="text-muted">Supports PDF, DOCX, HTML, TXT files</p>
-                            <input type="file" id="file-input" class="d-none" accept=".pdf,.docx,.doc,.html,.htm,.txt" multiple>
-                            <button class="btn btn-primary" onclick="document.getElementById('file-input').click()">
+                            <p class="text-muted">Supports PDF, DOCX, DOC, HTML, TXT, MD files</p>
+                            <input type="file" id="file-input" class="d-none" accept=".pdf,.docx,.doc,.html,.htm,.txt,.md" multiple>
+                            <button class="btn btn-primary btn-lg" onclick="document.getElementById('file-input').click()">
                                 Select Files
                             </button>
                         </div>
                         
-                        <!-- Processing Options -->
-                        <div class="mt-4">
-                            <h6>Processing Options:</h6>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="extract-tables" checked>
-                                        <label class="form-check-label" for="extract-tables">
-                                            Extract Tables
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="quality-check" checked>
-                                        <label class="form-check-label" for="quality-check">
-                                            Quality Assessment
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="extract-metadata" checked>
-                                        <label class="form-check-label" for="extract-metadata">
-                                            Extract Metadata
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="batch-mode">
-                                        <label class="form-check-label" for="batch-mode">
-                                            Batch Processing Mode
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="mt-3 text-center">
+                            <button class="btn btn-success btn-lg" id="process-btn" onclick="processDocuments()" disabled>
+                                <i class="fas fa-play me-2"></i>Process Documents
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -225,6 +306,24 @@
         const fileInput = document.getElementById('file-input');
         const resultsSection = document.getElementById('results-section');
         const resultsContainer = document.getElementById('results-container');
+        const processBtn = document.getElementById('process-btn');
+        let selectedFiles = [];
+
+        // Processing mode handling
+        document.querySelectorAll('input[name="processing-mode"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                // Hide all option sections
+                document.getElementById('custom-fields-section').classList.add('d-none');
+                document.getElementById('enhanced-options-section').classList.add('d-none');
+                
+                // Show relevant options
+                if (this.value === 'custom') {
+                    document.getElementById('custom-fields-section').classList.remove('d-none');
+                } else if (this.value === 'enhanced') {
+                    document.getElementById('enhanced-options-section').classList.remove('d-none');
+                }
+            });
+        });
 
         // Drag and drop functionality
         uploadArea.addEventListener('dragover', (e) => {
@@ -240,7 +339,7 @@
             e.preventDefault();
             uploadArea.classList.remove('dragover');
             const files = e.dataTransfer.files;
-            handleFiles(files);
+            handleFileSelection(files);
         });
 
         uploadArea.addEventListener('click', () => {
@@ -248,28 +347,123 @@
         });
 
         fileInput.addEventListener('change', (e) => {
-            handleFiles(e.target.files);
+            handleFileSelection(e.target.files);
         });
 
-        // File processing
-        async function handleFiles(files) {
-            if (files.length === 0) return;
+        // File selection handling
+        function handleFileSelection(files) {
+            selectedFiles = Array.from(files);
+            if (selectedFiles.length > 0) {
+                processBtn.disabled = false;
+                uploadArea.innerHTML = `
+                    <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                    <h5>${selectedFiles.length} file(s) selected</h5>
+                    <p class="text-muted">${selectedFiles.map(f => f.name).join(', ')}</p>
+                    <button class="btn btn-outline-primary" onclick="document.getElementById('file-input').click()">
+                        Change Files
+                    </button>
+                `;
+            }
+        }
 
-            const batchMode = document.getElementById('batch-mode').checked;
-            const apiUrl = batchMode && files.length > 1 ? 
-                'http://localhost:8001/batch-process/' : 
-                'http://localhost:8001/upload-enhanced/';
+        // Main processing function
+        async function processDocuments() {
+            if (selectedFiles.length === 0) return;
 
+            const mode = document.querySelector('input[name="processing-mode"]:checked').value;
+            
             try {
                 showProcessingIndicator();
                 
-                if (batchMode && files.length > 1) {
-                    await processBatch(files, apiUrl);
-                } else {
-                    await processSingle(files[0], apiUrl);
+                switch (mode) {
+                    case 'standard':
+                        await processStandard();
+                        break;
+                    case 'custom':
+                        await processCustom();
+                        break;
+                    case 'multi-technique':
+                        await processMultiTechnique();
+                        break;
+                    case 'enhanced':
+                        await processEnhanced();
+                        break;
                 }
             } catch (error) {
                 showError('Processing failed: ' + error.message);
+            }
+        }
+
+        // Standard processing
+        async function processStandard() {
+            const results = [];
+            
+            for (let file of selectedFiles) {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const response = await fetch('http://localhost:8000/upload/', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                result.filename = file.name;
+                result.processing_mode = 'Standard';
+                results.push(result);
+            }
+            
+            displayStandardResults(results);
+        }
+
+        // Custom fields processing
+        async function processCustom() {
+            const customFields = document.getElementById('custom-fields-input').value.trim();
+            if (!customFields) {
+                showError('Please specify custom fields to extract');
+                return;
+            }
+
+            const results = [];
+            
+            for (let file of selectedFiles) {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('fields', customFields);
+
+                const response = await fetch('http://localhost:8000/extract-custom/', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                result.filename = file.name;
+                result.processing_mode = 'Custom Fields';
+                results.push(result);
+            }
+            
+            displayCustomResults(results);
+        }
+
+        // Multi-technique processing (placeholder for future implementation)
+        async function processMultiTechnique() {
+            showError('Multi-technique processing is coming soon! Using standard processing for now.');
+            await processStandard();
+        }
+
+        // Enhanced processing
+        async function processEnhanced() {
+            const batchMode = document.getElementById('batch-mode').checked;
+            
+            if (batchMode && selectedFiles.length > 1) {
+                await processBatch(selectedFiles, 'http://localhost:8001/batch-process/');
+            } else {
+                const results = [];
+                for (let file of selectedFiles) {
+                    const result = await processSingle(file, 'http://localhost:8001/upload-enhanced/');
+                    results.push(result);
+                }
+                displayEnhancedResults(results);
             }
         }
 
@@ -283,7 +477,8 @@
             });
 
             const result = await response.json();
-            displayResults([result]);
+            result.filename = file.name;
+            return result;
         }
 
         async function processBatch(files, apiUrl) {
@@ -298,7 +493,7 @@
             });
 
             const result = await response.json();
-            displayBatchResults(result);
+            displayEnhancedBatchResults(result);
         }
 
         function showProcessingIndicator() {
@@ -313,7 +508,102 @@
             resultsSection.classList.remove('d-none');
         }
 
-        function displayResults(results) {
+        // Display functions for different processing modes
+        function displayStandardResults(results) {
+            let html = '<h4><i class="fas fa-chart-bar me-2"></i>Standard Processing Results</h4>';
+            
+            results.forEach((result, index) => {
+                html += `
+                    <div class="card mb-3">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Document: ${result.filename}</h5>
+                            <span class="badge bg-primary">${result.processing_mode}</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Customer Information</h6>
+                                    <ul class="list-unstyled">
+                                        <li><strong>Name:</strong> ${result.customer_info?.name || 'Not found'}</li>
+                                        <li><strong>SSN:</strong> ${result.customer_info?.ssn || 'Not found'}</li>
+                                        <li><strong>DOB:</strong> ${result.customer_info?.date_of_birth || 'Not found'}</li>
+                                        <li><strong>Phone:</strong> ${result.customer_info?.phone || 'Not found'}</li>
+                                        <li><strong>Email:</strong> ${result.customer_info?.email || 'Not found'}</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Policy Information</h6>
+                                    <ul class="list-unstyled">
+                                        <li><strong>Policy Number:</strong> ${result.policy_info?.policy_number || 'Not found'}</li>
+                                        <li><strong>Type:</strong> ${result.policy_info?.policy_type || 'Not found'}</li>
+                                        <li><strong>Coverage:</strong> ${result.policy_info?.coverage_amount || 'Not found'}</li>
+                                        <li><strong>Premium:</strong> ${result.policy_info?.premium || 'Not found'}</li>
+                                        <li><strong>Effective Date:</strong> ${result.policy_info?.effective_date || 'Not found'}</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <div class="d-flex justify-content-between">
+                                    <span><strong>Confidence Score:</strong> ${(result.confidence_score * 100).toFixed(1)}%</span>
+                                    <span><strong>Processing Time:</strong> ${result.processing_time?.toFixed(2)}s</span>
+                                </div>
+                                <div class="progress mt-2">
+                                    <div class="progress-bar" style="width: ${result.confidence_score * 100}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            resultsContainer.innerHTML = html;
+        }
+
+        function displayCustomResults(results) {
+            let html = '<h4><i class="fas fa-list me-2"></i>Custom Fields Extraction Results</h4>';
+            
+            results.forEach((result, index) => {
+                html += `
+                    <div class="card mb-3">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Document: ${result.filename}</h5>
+                            <span class="badge bg-info">${result.processing_mode}</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Requested Fields</h6>
+                                    <ul class="list-unstyled">
+                                        ${result.requested_fields?.map(field => `<li>• ${field}</li>`).join('') || '<li>No fields specified</li>'}
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Extracted Values</h6>
+                                    <ul class="list-unstyled">
+                                        ${Object.entries(result.extracted_fields || {}).map(([key, value]) => 
+                                            `<li><strong>${key}:</strong> ${value || 'Not found'}</li>`
+                                        ).join('')}
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <div class="d-flex justify-content-between">
+                                    <span><strong>Confidence Score:</strong> ${(result.confidence_score * 100).toFixed(1)}%</span>
+                                    <span><strong>Processing Time:</strong> ${result.processing_time?.toFixed(2)}s</span>
+                                </div>
+                                <div class="progress mt-2">
+                                    <div class="progress-bar bg-info" style="width: ${result.confidence_score * 100}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            resultsContainer.innerHTML = html;
+        }
+
+        function displayEnhancedResults(results) {
             let html = '';
             results.forEach((result, index) => {
                 const qualityColor = result.quality_score > 0.7 ? 'success' : 
@@ -368,7 +658,7 @@
             resultsContainer.innerHTML = html;
         }
 
-        function displayBatchResults(batchResult) {
+        function displayEnhancedBatchResults(batchResult) {
             let html = `
                 <div class="card mb-3">
                     <div class="card-header">
