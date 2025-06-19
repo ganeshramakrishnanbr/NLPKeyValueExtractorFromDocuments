@@ -14,24 +14,11 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "FastAPI Server"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
 args = "Django Frontend"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "FastAPI Backend"
-
-[[workflows.workflow]]
-name = "FastAPI Server"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python main_simple.py"
-waitForPort = 8000
+args = "Backend API"
 
 [[workflows.workflow]]
 name = "Django Frontend"
@@ -43,12 +30,12 @@ args = "cd frontend && python manage.py runserver 0.0.0.0:5000"
 waitForPort = 5000
 
 [[workflows.workflow]]
-name = "FastAPI Backend"
+name = "Backend API"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd backend && python main_simple.py"
+args = "python main_simple.py"
 waitForPort = 8000
 
 [deployment]
