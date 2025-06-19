@@ -123,28 +123,33 @@ class DocumentProcessor:
         """
         # Document type keywords
         keywords = {
-            "life_insurance": [
-                "life insurance", "life policy", "death benefit", "beneficiary", 
-                "life coverage", "term life", "whole life", "universal life",
-                "policy owner", "insured person", "life benefit"
+            "employment_document": [
+                "employment", "employee", "employment contract", "job offer", "work agreement",
+                "salary", "wage", "position", "department", "employer", "hire", "staff"
             ],
-            "health_insurance": [
-                "health insurance", "medical insurance", "health policy", "medical coverage",
-                "deductible", "copay", "health plan", "medical benefits",
-                "healthcare", "health coverage"
+            "financial_document": [
+                "bank statement", "financial", "account", "balance", "transaction",
+                "deposit", "withdrawal", "investment", "loan", "credit", "debit"
             ],
-            "auto_insurance": [
-                "auto insurance", "car insurance", "vehicle insurance", "auto policy",
-                "collision", "liability", "comprehensive", "vehicle coverage",
-                "automobile", "motor vehicle"
+            "legal_document": [
+                "contract", "agreement", "legal", "terms", "conditions", "clause",
+                "party", "witness", "notary", "court", "jurisdiction"
             ],
-            "disability_insurance": [
-                "disability insurance", "disability coverage", "income protection",
-                "disability benefits", "short term disability", "long term disability"
+            "medical_document": [
+                "medical", "health", "patient", "doctor", "physician", "treatment",
+                "diagnosis", "prescription", "hospital", "clinic", "healthcare"
             ],
-            "property_insurance": [
-                "property insurance", "homeowners insurance", "renters insurance",
-                "property coverage", "dwelling", "personal property"
+            "insurance_document": [
+                "insurance", "policy", "coverage", "premium", "deductible", "claim",
+                "beneficiary", "insured", "insurer", "protection"
+            ],
+            "educational_document": [
+                "education", "school", "university", "student", "course", "grade",
+                "transcript", "diploma", "certificate", "academic"
+            ],
+            "identification_document": [
+                "identification", "id", "passport", "license", "permit", "certificate",
+                "registration", "official", "government", "issued"
             ]
         }
         

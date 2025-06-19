@@ -354,16 +354,16 @@
                 </div>
 
                 <div class="result-card">
-                    <h3>Customer Information</h3>
+                    <h3>Primary Information</h3>
                     <div class="info-grid" id="customerInfo">
-                        <!-- Customer info will be populated here -->
+                        <!-- Primary info will be populated here -->
                     </div>
                 </div>
 
                 <div class="result-card">
-                    <h3>Policy Information</h3>
+                    <h3>Secondary Information</h3>
                     <div class="info-grid" id="policyInfo">
-                        <!-- Policy info will be populated here -->
+                        <!-- Secondary info will be populated here -->
                     </div>
                 </div>
 
@@ -505,10 +505,10 @@
             document.getElementById('confidenceText').textContent = confidence + '%';
             document.getElementById('confidenceFill').style.width = confidence + '%';
 
-            // Display customer information
-            const customerFields = [
+            // Display primary information
+            const primaryFields = [
                 { key: 'name', label: 'Full Name' },
-                { key: 'ssn', label: 'Social Security Number' },
+                { key: 'ssn', label: 'SSN/ID Number' },
                 { key: 'date_of_birth', label: 'Date of Birth' },
                 { key: 'address', label: 'Address' },
                 { key: 'phone', label: 'Phone Number' },
@@ -517,7 +517,7 @@
 
             const customerInfo = document.getElementById('customerInfo');
             customerInfo.innerHTML = '';
-            customerFields.forEach(field => {
+            primaryFields.forEach(field => {
                 const value = data.customer_info[field.key] || 'Not found';
                 customerInfo.innerHTML += `
                     <div class="info-item">
@@ -527,24 +527,26 @@
                 `;
             });
 
-            // Display policy information
-            const policyFields = [
-                { key: 'policy_number', label: 'Policy Number' },
-                { key: 'policy_type', label: 'Policy Type' },
-                { key: 'coverage_amount', label: 'Coverage Amount' },
-                { key: 'premium', label: 'Premium' }
+            // Display secondary information
+            const secondaryFields = [
+                { key: 'policy_number', label: 'Account/Reference Number' },
+                { key: 'policy_type', label: 'Document Type' },
+                { key: 'coverage_amount', label: 'Amount/Value' },
+                { key: 'premium', label: 'Additional Info' }
             ];
 
             const policyInfo = document.getElementById('policyInfo');
             policyInfo.innerHTML = '';
-            policyFields.forEach(field => {
+            secondaryFields.forEach(field => {
                 const value = data.policy_info[field.key] || 'Not found';
-                policyInfo.innerHTML += `
-                    <div class="info-item">
-                        <div class="info-label">${field.label}</div>
-                        <div class="info-value">${value}</div>
-                    </div>
-                `;
+                if (value !== 'Not found' && value !== null) {
+                    policyInfo.innerHTML += `
+                        <div class="info-item">
+                            <div class="info-label">${field.label}</div>
+                            <div class="info-value">${value}</div>
+                        </div>
+                    `;
+                }
             });
 
             // Display processing information
@@ -599,7 +601,7 @@
                 policyCard.style.display = 'none';
             }
             
-            // Update the customer info title
+            // Update the primary info title
             const customerTitle = document.querySelector('.result-card h3');
             if (customerTitle) {
                 customerTitle.textContent = 'Extracted Information';
@@ -657,7 +659,7 @@
             fileInput.value = '';
             hideError();
             
-            // Reset policy card visibility and titles
+            // Reset secondary card visibility and titles
             const policyCard = document.querySelector('.result-card:nth-child(3)');
             if (policyCard) {
                 policyCard.style.display = 'block';
@@ -665,7 +667,7 @@
             
             const customerTitle = document.querySelector('.result-card h3');
             if (customerTitle) {
-                customerTitle.textContent = 'Customer Information';
+                customerTitle.textContent = 'Primary Information';
             }
         }
     </script>

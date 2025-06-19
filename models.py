@@ -2,20 +2,20 @@ from pydantic import BaseModel, Field
 from typing import Optional, Dict, List, Any
 
 class CustomerInfo(BaseModel):
-    """Customer information extracted from insurance documents"""
-    name: Optional[str] = Field(None, description="Customer's full name")
-    ssn: Optional[str] = Field(None, description="Social Security Number (XXX-XX-XXXX format)")
+    """Primary information extracted from documents"""
+    name: Optional[str] = Field(None, description="Person's full name")
+    ssn: Optional[str] = Field(None, description="SSN/ID Number (XXX-XX-XXXX format)")
     date_of_birth: Optional[str] = Field(None, description="Date of birth")
-    address: Optional[str] = Field(None, description="Customer's address")
+    address: Optional[str] = Field(None, description="Address information")
     phone: Optional[str] = Field(None, description="Phone number")
     email: Optional[str] = Field(None, description="Email address")
 
 class PolicyInfo(BaseModel):
-    """Policy information extracted from insurance documents"""
-    policy_number: Optional[str] = Field(None, description="Policy identification number")
-    policy_type: Optional[str] = Field(None, description="Type of insurance policy")
-    coverage_amount: Optional[str] = Field(None, description="Coverage amount or benefit")
-    premium: Optional[str] = Field(None, description="Premium amount and frequency")
+    """Secondary information extracted from documents"""
+    policy_number: Optional[str] = Field(None, description="Account/Reference number")
+    policy_type: Optional[str] = Field(None, description="Document type classification")
+    coverage_amount: Optional[str] = Field(None, description="Amount or value found")
+    premium: Optional[str] = Field(None, description="Additional information")
 
 class DynamicExtractionRequest(BaseModel):
     """Request model for dynamic field extraction"""
@@ -40,19 +40,19 @@ class DynamicExtractionResult(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "document_type": "life_insurance",
+                "document_type": "employment_document",
                 "extracted_fields": {
                     "name": "John Smith",
                     "email": "john.smith@email.com",
                     "phone": "(555) 123-4567",
                     "address": "123 Main St, Anytown, CA",
-                    "policy_number": "LIF1234567",
-                    "coverage_amount": "$500,000"
+                    "employee_id": "EMP1234567",
+                    "salary": "$75,000"
                 },
                 "confidence_score": 0.85,
                 "processing_time": 2.3,
-                "raw_text_preview": "LIFE INSURANCE POLICY\nPolicyowner: John Smith\nEmail: john.smith@email.com...",
-                "requested_fields": ["name", "email", "phone", "address", "policy_number", "coverage_amount"]
+                "raw_text_preview": "EMPLOYMENT CONTRACT\nEmployee: John Smith\nEmail: john.smith@email.com...",
+                "requested_fields": ["name", "email", "phone", "address", "employee_id", "salary"]
             }
         }
 
@@ -68,7 +68,7 @@ class ExtractionResult(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "document_type": "life_insurance",
+                "document_type": "employment_document",
                 "customer_info": {
                     "name": "John Smith",
                     "ssn": "123-45-6789",
@@ -78,13 +78,13 @@ class ExtractionResult(BaseModel):
                     "email": "john.smith@email.com"
                 },
                 "policy_info": {
-                    "policy_number": "LIF1234567",
-                    "policy_type": "Term Life",
-                    "coverage_amount": "$500,000",
-                    "premium": "$85.50/month"
+                    "policy_number": "EMP1234567",
+                    "policy_type": "Employment Document",
+                    "coverage_amount": "$75,000",
+                    "premium": "Additional Benefits"
                 },
                 "confidence_score": 0.85,
                 "processing_time": 2.3,
-                "raw_text_preview": "LIFE INSURANCE POLICY\nPolicyowner: John Smith\nSSN: 123-45-6789\nDate of Birth: 01/15/1980\nAddress: 123 Main St, Anytown, CA 90210\nPhone: (555) 123-4567..."
+                "raw_text_preview": "EMPLOYMENT CONTRACT\nEmployee: John Smith\nSSN: 123-45-6789\nDate of Birth: 01/15/1980\nAddress: 123 Main St, Anytown, CA 90210\nPhone: (555) 123-4567..."
             }
         }
