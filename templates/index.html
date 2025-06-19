@@ -717,19 +717,42 @@
 
         function switchMode(mode) {
             currentMode = mode;
-            const presetBtn = document.getElementById('presetMode');
-            const customBtn = document.getElementById('customMode');
-            const customSection = document.getElementById('customFieldsSection');
             
-            if (mode === 'preset') {
-                presetBtn.classList.add('active');
-                customBtn.classList.remove('active');
-                customSection.style.display = 'none';
-            } else {
-                customBtn.classList.add('active');
-                presetBtn.classList.remove('active');
+            // Update button states
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(mode + 'Mode').classList.add('active');
+            
+            // Show/hide sections
+            const customSection = document.getElementById('customFieldsSection');
+            const multiTechniqueSection = document.getElementById('multiTechniqueSection');
+            
+            customSection.style.display = 'none';
+            multiTechniqueSection.style.display = 'none';
+            
+            if (mode === 'custom') {
                 customSection.style.display = 'block';
+            } else if (mode === 'multi-technique') {
+                multiTechniqueSection.style.display = 'block';
             }
+        }
+
+        function selectRecommendedTechniques() {
+            const recommended = ['regex_pattern_matching', 'fuzzy_string_matching', 'keyword_proximity_analysis', 'confidence_weighted_extraction'];
+            const checkboxes = document.querySelectorAll('input[name="technique"]');
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = recommended.includes(checkbox.value);
+            });
+        }
+
+        function selectAllTechniques() {
+            const checkboxes = document.querySelectorAll('input[name="technique"]');
+            checkboxes.forEach(checkbox => checkbox.checked = true);
+        }
+
+        function clearAllTechniques() {
+            const checkboxes = document.querySelectorAll('input[name="technique"]');
+            checkboxes.forEach(checkbox => checkbox.checked = false);
         }
 
         async function uploadFile(file) {
@@ -748,6 +771,24 @@
                     
                     endpoint = '/extract-custom/';
                     formData.append('fields', fields); // Can be empty for default fields
+                } else if (currentMode === 'multi-technique') {
+                    // Get selected techniques
+                    const selectedTechniques = [];
+                    const checkboxes = document.querySelectorAll('input[name="technique"]:checked');
+                    checkboxes.forEach(checkbox => {
+                        selectedTechniques.push(checkbox.value);
+                    });
+                    
+                    if (selectedTechniques.length === 0) {
+                        throw new Error('Please select at least one extraction technique');
+                    }
+                    
+                    const fieldsInput = document.getElementById('multiTechniqueFields');
+                    const fields = fieldsInput.value.trim();
+                    
+                    endpoint = '/upload/multi-technique/';
+                    formData.append('selected_techniques', selectedTechniques.join(','));
+                    formData.append('fields', fields);
                 }
 
                 const response = await fetch(endpoint, {
@@ -764,6 +805,8 @@
                 
                 if (currentMode === 'custom') {
                     displayDynamicResults(result);
+                } else if (currentMode === 'multi-technique') {
+                    displayMultiTechniqueResults(result);
                 } else {
                     displayResults(result);
                 }
@@ -925,6 +968,159 @@
 
         function hideError() {
             error.style.display = 'none';
+        }
+
+        function displayMultiTechniqueResults(data) {
+            // Clear existing results
+            results.innerHTML = '';
+            
+            // Create multi-technique results container
+            const multiResults = document.createElement('div');
+            multiResults.className = 'multi-technique-results';
+            
+            // Document summary
+            const summaryCard = document.createElement('div');
+            summaryCard.className = 'result-card';
+            summaryCard.innerHTML = `
+                <h3>Document Summary</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Document Type</div>
+                        <div class="info-value">${data.document_summary.document_type}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Processing Time</div>
+                        <div class="info-value">${data.processing_time}s</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Techniques Used</div>
+                        <div class="info-value">${data.selected_techniques.length}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Fields Requested</div>
+                        <div class="info-value">${data.requested_fields.length}</div>
+                    </div>
+                </div>
+            `;
+            multiResults.appendChild(summaryCard);
+            
+            // Technique ranking
+            const rankingCard = document.createElement('div');
+            rankingCard.className = 'ranking-section';
+            rankingCard.innerHTML = '<h3>Technique Performance Ranking</h3>';
+            
+            const sortedTechniques = Object.entries(data.technique_confidence_scores)
+                .sort(([,a], [,b]) => b - a);
+            
+            sortedTechniques.forEach(([techniqueName, score], index) => {
+                const displayName = techniqueName.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                const confidenceClass = score >= 0.7 ? 'confidence-high' : score >= 0.4 ? 'confidence-medium' : 'confidence-low';
+                
+                const rankingItem = document.createElement('div');
+                rankingItem.className = 'ranking-item';
+                rankingItem.innerHTML = `
+                    <div style="display: flex; align-items: center;">
+                        <div class="rank-number">${index + 1}</div>
+                        <div style="margin-left: 15px;">
+                            <strong>${displayName}</strong>
+                        </div>
+                    </div>
+                    <div class="confidence-badge ${confidenceClass}">
+                        ${Math.round(score * 100)}%
+                    </div>
+                `;
+                rankingCard.appendChild(rankingItem);
+            });
+            
+            multiResults.appendChild(rankingCard);
+            
+            // Technique comparison
+            const comparisonCard = document.createElement('div');
+            comparisonCard.className = 'result-card';
+            comparisonCard.innerHTML = '<h3>Technique Comparison Results</h3>';
+            
+            const comparisonGrid = document.createElement('div');
+            comparisonGrid.className = 'technique-comparison';
+            
+            data.technique_results.forEach(technique => {
+                const displayName = technique.technique_name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                const confidenceClass = technique.confidence_score >= 0.7 ? 'confidence-high' : 
+                                      technique.confidence_score >= 0.4 ? 'confidence-medium' : 'confidence-low';
+                
+                const techniqueCard = document.createElement('div');
+                techniqueCard.className = 'technique-result-card';
+                
+                let fieldsHtml = '';
+                Object.entries(technique.extracted_fields).forEach(([field, value]) => {
+                    if (value && value.trim()) {
+                        fieldsHtml += `
+                            <div class="info-item" style="margin-bottom: 8px;">
+                                <div class="info-label">${field.replace(/_/g, ' ')}</div>
+                                <div class="info-value">${value}</div>
+                            </div>
+                        `;
+                    }
+                });
+                
+                techniqueCard.innerHTML = `
+                    <div class="technique-name">${displayName}</div>
+                    <div class="technique-confidence">
+                        <span>Confidence:</span>
+                        <span class="confidence-badge ${confidenceClass}">
+                            ${Math.round(technique.confidence_score * 100)}%
+                        </span>
+                    </div>
+                    <div style="max-height: 200px; overflow-y: auto;">
+                        ${fieldsHtml || '<div style="color: #666; font-style: italic;">No fields extracted</div>'}
+                    </div>
+                `;
+                
+                comparisonGrid.appendChild(techniqueCard);
+            });
+            
+            comparisonCard.appendChild(comparisonGrid);
+            multiResults.appendChild(comparisonCard);
+            
+            // Consolidated results
+            const consolidatedCard = document.createElement('div');
+            consolidatedCard.className = 'result-card';
+            consolidatedCard.innerHTML = '<h3>Best Consolidated Results</h3>';
+            
+            const consolidatedGrid = document.createElement('div');
+            consolidatedGrid.className = 'info-grid';
+            
+            Object.entries(data.consolidated_results).forEach(([field, value]) => {
+                if (value && value.trim()) {
+                    const bestTechnique = data.best_technique_per_field[field];
+                    const techniqueDisplay = bestTechnique !== 'none' ? 
+                        bestTechnique.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : 
+                        'No technique found value';
+                    
+                    consolidatedGrid.innerHTML += `
+                        <div class="info-item">
+                            <div class="info-label">${field.replace(/_/g, ' ')}</div>
+                            <div class="info-value">${value}</div>
+                            <div style="font-size: 0.8em; color: #666; margin-top: 4px;">
+                                Best: ${techniqueDisplay}
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+            
+            consolidatedCard.appendChild(consolidatedGrid);
+            multiResults.appendChild(consolidatedCard);
+            
+            // Add reset button
+            const resetBtn = document.createElement('button');
+            resetBtn.className = 'reset-btn';
+            resetBtn.textContent = 'Process Another Document';
+            resetBtn.onclick = resetForm;
+            multiResults.appendChild(resetBtn);
+            
+            results.appendChild(multiResults);
+            results.style.display = 'block';
+            uploadSection.style.display = 'none';
         }
 
         function resetForm() {
