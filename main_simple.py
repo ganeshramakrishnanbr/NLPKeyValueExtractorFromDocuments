@@ -10,7 +10,11 @@ from models import ExtractionResult, CustomerInfo, PolicyInfo, DynamicExtraction
 from document_processor import DocumentProcessor
 from simple_extractor import SimpleDynamicExtractor
 
-app = FastAPI(title="NLP Key Value Extractor From Documents", version="1.0.0")
+app = FastAPI(
+    title="NLP Key Value Extractor From Documents", 
+    version="1.0.0",
+    description="Extract key-value information from PDF, DOCX, DOC, and Markdown files using intelligent pattern recognition"
+)
 
 # Initialize templates
 templates = Jinja2Templates(directory="templates")
@@ -123,7 +127,7 @@ async def upload_document(file: UploadFile = File(...)):
 @app.post("/extract-custom/", response_model=DynamicExtractionResult)
 async def extract_custom_fields(file: UploadFile = File(...), fields: str = ""):
     """
-    Upload and process documents with custom field extraction.
+    Upload and process documents (PDF, DOCX, DOC, MD) with custom field extraction.
     Specify which fields to extract in the 'fields' parameter as comma-separated values.
     """
     start_time = time.time()
@@ -230,6 +234,7 @@ async def api_info():
     return {
         "message": "NLP Key Value Extractor From Documents API",
         "version": "1.0.0",
+        "supported_formats": ["PDF", "DOCX", "DOC", "MD"],
         "endpoints": {
             "upload": "/upload/ (POST) - Upload and process documents with preset fields",
             "extract-custom": "/extract-custom/ (POST) - Upload and extract custom fields",
