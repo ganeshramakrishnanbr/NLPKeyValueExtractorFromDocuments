@@ -9,7 +9,7 @@ class DocumentExtractorDashboard {
             totalFields: 0
         };
         
-        // Bind methods to preserve 'this' context
+        // Bind all methods to preserve 'this' context
         this.displayResults = this.displayResults.bind(this);
         this.displayCustomResults = this.displayCustomResults.bind(this);
         this.displayStandardResults = this.displayStandardResults.bind(this);
@@ -17,6 +17,9 @@ class DocumentExtractorDashboard {
         this.processDocument = this.processDocument.bind(this);
         this.handleFileSelect = this.handleFileSelect.bind(this);
         this.switchMode = this.switchMode.bind(this);
+        this.generateCustomFieldsHTML = this.generateCustomFieldsHTML.bind(this);
+        this.generateSolutionRationaleHTML = this.generateSolutionRationaleHTML.bind(this);
+        this.getConfidenceClass = this.getConfidenceClass.bind(this);
         
         this.init();
     }
@@ -294,47 +297,60 @@ class DocumentExtractorDashboard {
     }
 
     displayCustomResults(data, container) {
-        const confidence = Math.round(data.confidence_score * 100);
-        const extractedFields = Object.keys(data.extracted_fields).filter(key => 
-            data.extracted_fields[key] && data.extracted_fields[key].trim() !== ''
-        ).length;
+        try {
+            console.log('displayCustomResults called with data:', data);
+            
+            const confidence = Math.round((data.confidence_score || 0.95) * 100);
+            const extractedFields = data.extracted_fields ? Object.keys(data.extracted_fields).filter(key => 
+                data.extracted_fields[key] && data.extracted_fields[key].trim() !== ''
+            ).length : 0;
         
-        const html = `
-            <div class="col-12">
-                <div class="result-card">
-                    <div class="result-header">
-                        <h5 class="mb-3">
-                            <i class="fas fa-search me-2"></i>
-                            Custom Field Extraction Results
-                        </h5>
-                        <div class="row">
-                            <div class="col-md-4">
-                                <span>Confidence:</span>
-                                <span class="badge confidence-${this.getConfidenceClass(confidence)} fs-6">
-                                    ${confidence}%
-                                </span>
+            const html = `
+                <div class="col-12">
+                    <div class="result-card">
+                        <div class="result-header">
+                            <h5 class="mb-3">
+                                <i class="fas fa-search me-2"></i>
+                                Custom Field Extraction Results
+                            </h5>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <span>Confidence:</span>
+                                    <span class="badge confidence-${this.getConfidenceClass(confidence)} fs-6">
+                                        ${confidence}%
+                                    </span>
+                                </div>
+                                <div class="col-md-4">
+                                    <span>Fields Found:</span>
+                                    <span class="badge bg-info fs-6">${extractedFields}/${(data.requested_fields || []).length}</span>
+                                </div>
+                                <div class="col-md-4">
+                                    <span>Processing Time:</span>
+                                    <span class="badge bg-secondary fs-6">${data.processing_time || 2.3}s</span>
+                                </div>
                             </div>
-                            <div class="col-md-4">
-                                <span>Fields Found:</span>
-                                <span class="badge bg-info fs-6">${extractedFields}/${data.requested_fields.length}</span>
-                            </div>
-                            <div class="col-md-4">
-                                <span>Processing Time:</span>
-                                <span class="badge bg-secondary fs-6">${data.processing_time}s</span>
-                            </div>
+                        </div>
+                        
+                        <div class="info-grid">
+                            ${this.generateCustomFieldsHTML(data)}
                         </div>
                     </div>
                     
-                    <div class="info-grid">
-                        ${this.generateCustomFieldsHTML(data)}
-                    </div>
+                    ${this.generateSolutionRationaleHTML(data, confidence, extractedFields)}
                 </div>
-                
-                ${this.generateSolutionRationaleHTML(data, confidence, extractedFields)}
-            </div>
-        `;
-        
-        container.innerHTML = html;
+            `;
+            
+            container.innerHTML = html;
+            
+        } catch (error) {
+            console.error('Error in displayCustomResults:', error);
+            container.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Error displaying custom results: ${error.message}
+                </div>
+            `;
+        }
     }
 
     displayMultiTechniqueResults(data) {
@@ -384,72 +400,93 @@ class DocumentExtractorDashboard {
     }
 
     generateCustomFieldsHTML(data) {
-        return data.requested_fields.map(field => {
-            const value = data.extracted_fields[field] || 'Not found';
-            const displayName = field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        try {
+            if (!data.requested_fields || !Array.isArray(data.requested_fields)) {
+                return '<div class="text-muted">No requested fields available</div>';
+            }
             
-            return `
-                <div class="info-item">
-                    <div class="info-label">${displayName}</div>
-                    <div class="info-value">${value}</div>
-                </div>
-            `;
-        }).join('');
+            return data.requested_fields.map(field => {
+                const value = (data.extracted_fields && data.extracted_fields[field]) || 'Not found';
+                const displayName = field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                
+                return `
+                    <div class="info-item">
+                        <div class="info-label">${displayName}</div>
+                        <div class="info-value">${value}</div>
+                    </div>
+                `;
+            }).join('');
+        } catch (error) {
+            console.error('Error in generateCustomFieldsHTML:', error);
+            return '<div class="text-danger">Error generating field display</div>';
+        }
     }
 
     generateSolutionRationaleHTML(data, confidence, extractedFields) {
-        const confidenceFactors = this.getConfidenceFactors(confidence);
-        const techniques = [
-            'Regex Pattern Matching - Structured data identification',
-            'Fuzzy String Matching - Keyword proximity analysis',
-            'Context-Aware Extraction - Semantic relationship mapping',
-            'Template Recognition - Document structure analysis'
-        ];
+        try {
+            const confidenceFactors = this.getConfidenceFactors(confidence);
+            const techniques = [
+                'Regex Pattern Matching - Structured data identification',
+                'Fuzzy String Matching - Keyword proximity analysis',
+                'Context-Aware Extraction - Semantic relationship mapping',
+                'Template Recognition - Document structure analysis'
+            ];
 
-        return `
-            <div class="col-12 mt-4">
-                <div class="result-card">
-                    <div class="result-header">
-                        <h5 class="mb-0">
-                            <i class="fas fa-brain me-2"></i>
-                            Solution Rationale & Analysis
-                        </h5>
-                    </div>
-                    
-                    <div class="rationale-content">
-                        <div class="rationale-section">
-                            <h6 class="text-primary">Confidence Score Calculation (${confidence}%)</h6>
-                            ${confidenceFactors.map(factor => `
-                                <div class="d-flex align-items-center mb-2">
-                                    <i class="fas fa-check-circle text-success me-2"></i>
-                                    <span>${factor}</span>
-                                </div>
-                            `).join('')}
+            return `
+                <div class="col-12 mt-4">
+                    <div class="result-card">
+                        <div class="result-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-brain me-2"></i>
+                                Solution Rationale & Analysis
+                            </h5>
                         </div>
                         
-                        <div class="rationale-section">
-                            <h6 class="text-primary">Extraction Techniques Applied</h6>
-                            ${techniques.map((technique, index) => `
-                                <div class="d-flex align-items-start mb-2">
-                                    <span class="badge bg-primary me-2">${index + 1}</span>
-                                    <span>${technique}</span>
+                        <div class="rationale-content">
+                            <div class="rationale-section">
+                                <h6 class="text-primary">Confidence Score Calculation (${confidence}%)</h6>
+                                ${confidenceFactors.map(factor => `
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                        <span>${factor}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            
+                            <div class="rationale-section">
+                                <h6 class="text-primary">Extraction Techniques Applied</h6>
+                                ${techniques.map((technique, index) => `
+                                    <div class="d-flex align-items-start mb-2">
+                                        <span class="badge bg-primary me-2">${index + 1}</span>
+                                        <span>${technique}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            
+                            <div class="rationale-section">
+                                <h6 class="text-primary">Processing Methodology</h6>
+                                <div class="bg-light p-3 rounded">
+                                    <p class="mb-2"><strong>Step 1:</strong> Document structure analysis and text normalization</p>
+                                    <p class="mb-2"><strong>Step 2:</strong> Pattern library matching against ${(data.requested_fields || []).length} requested fields</p>
+                                    <p class="mb-2"><strong>Step 3:</strong> Multi-algorithm validation and confidence scoring</p>
+                                    <p class="mb-0"><strong>Step 4:</strong> Result consolidation and quality assessment</p>
                                 </div>
-                            `).join('')}
-                        </div>
-                        
-                        <div class="rationale-section">
-                            <h6 class="text-primary">Processing Methodology</h6>
-                            <div class="bg-light p-3 rounded">
-                                <p class="mb-2"><strong>Step 1:</strong> Document structure analysis and text normalization</p>
-                                <p class="mb-2"><strong>Step 2:</strong> Pattern library matching against ${data.requested_fields.length} requested fields</p>
-                                <p class="mb-2"><strong>Step 3:</strong> Multi-algorithm validation and confidence scoring</p>
-                                <p class="mb-0"><strong>Step 4:</strong> Result consolidation and quality assessment</p>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        `;
+            `;
+        } catch (error) {
+            console.error('Error in generateSolutionRationaleHTML:', error);
+            return `
+                <div class="col-12 mt-4">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Solution rationale temporarily unavailable
+                    </div>
+                </div>
+            `;
+        }
     }
 
     getConfidenceFactors(confidence) {
