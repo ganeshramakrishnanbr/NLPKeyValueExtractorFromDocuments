@@ -1,38 +1,67 @@
-# NLP Key Value Extractor From Documents
+# NLP Document Extraction Platform
 
-A powerful Python application that extracts key-value information from any document type using intelligent pattern recognition and NLP techniques.
+A sophisticated full-stack application for intelligent document information extraction using advanced local NLP processing techniques, featuring a modern Django frontend and FastAPI backend.
+
+## Architecture
+
+This application uses a **hybrid architecture** combining the best of both frameworks:
+
+- **Frontend**: Django-based rich dashboard with Bootstrap 5 UI
+- **Backend**: FastAPI NLP processing engine
+- **Communication**: RESTful API integration between frontend and backend
+- **Processing**: Entirely local - no external API dependencies
 
 ## Features
 
+### Rich Dashboard Interface
+- **Modern Bootstrap 5 UI**: Professional, responsive design with dark theme support
+- **Real-time Progress Updates**: Visual feedback during document processing
+- **Interactive Statistics**: Live processing metrics and performance analytics
+- **Drag & Drop Upload**: Intuitive file upload with format validation
+- **Multi-mode Processing**: Standard, Custom, and Multi-technique analysis modes
+- **Solution Rationale**: Detailed explanations of confidence calculations and techniques used
+
+### Core Functionality
 - **Multi-Format Document Support**: PDF, DOCX, DOC, and Markdown (.md) files
-- **Dual Processing Modes**:
+- **Three Processing Modes**:
   - **Standard Fields**: Extract predefined common information
   - **Custom Fields**: User-specified comma-separated field extraction
-- **Intelligent Document Classification**: Automatically categorizes into 7 document types
+  - **Multi-Technique Analysis**: Comparative analysis with 10 different extraction methods
+- **Intelligent Document Classification**: Recognizes 3,700+ document varieties
 - **Local NLP Processing**: No external API dependencies for data privacy
-- **Pattern-Based Extraction**: Advanced regex and contextual matching
-- **Web Interface**: Responsive UI with drag-and-drop file upload
-- **REST API**: FastAPI with automatic OpenAPI documentation
+- **Advanced Pattern Recognition**: Enhanced regex and contextual matching
 - **Real-time Processing**: Instant extraction with confidence scoring
-- **Extensible Architecture**: Easy to add new document types and fields
+- **Template Learning**: Ability to learn and recognize new document patterns
 
 ## Quick Start
 
 ### Installation
 ```bash
 # Install required dependencies
-pip install fastapi uvicorn pdfplumber python-docx docx2txt python-multipart pydantic
+pip install django django-cors-headers fastapi uvicorn pdfplumber python-docx docx2txt python-multipart pydantic requests
 ```
 
 ### Run the Application
+
+#### Method 1: Django Frontend + FastAPI Backend (Recommended)
+```bash
+# Terminal 1: Start the FastAPI backend
+python main_simple.py
+
+# Terminal 2: Start the Django frontend
+python manage.py runserver 0.0.0.0:5000
+```
+
+#### Method 2: FastAPI Only (Original Interface)
 ```bash
 python main_simple.py
 ```
 
-The application will start on `http://localhost:8000` with:
-- **Web Interface**: Interactive document upload and extraction
-- **API Documentation**: Available at `/docs` (Swagger UI) and `/redoc`
-- **Health Check**: `/health` endpoint for monitoring
+### Access Points
+- **Django Dashboard**: `http://localhost:5000` - Rich modern interface
+- **FastAPI Backend**: `http://localhost:8000` - NLP processing engine
+- **API Documentation**: Available at `http://localhost:8000/docs` (Swagger UI)
+- **Health Check**: `/api/health/` endpoint for monitoring both services
 
 ## Architecture
 
