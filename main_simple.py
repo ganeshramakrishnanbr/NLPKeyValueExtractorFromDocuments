@@ -7,6 +7,7 @@ document processing capabilities through RESTful APIs.
 
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import tempfile
 import os
@@ -130,6 +131,15 @@ app = FastAPI(
     title="NLP Document Extraction API Backend", 
     version="2.0.0",
     description="Intelligent document processing with advanced NLP capabilities"
+)
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Initialize processors
