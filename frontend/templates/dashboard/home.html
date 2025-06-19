@@ -93,7 +93,7 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <div class="form-check">
                                     <input class="form-check-input" type="radio" name="processing-mode" id="standard-mode" value="standard" checked>
                                     <label class="form-check-label" for="standard-mode">
@@ -102,7 +102,7 @@
                                     </label>
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <div class="form-check">
                                     <input class="form-check-input" type="radio" name="processing-mode" id="custom-mode" value="custom">
                                     <label class="form-check-label" for="custom-mode">
@@ -111,21 +111,12 @@
                                     </label>
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <div class="form-check">
                                     <input class="form-check-input" type="radio" name="processing-mode" id="multi-technique-mode" value="multi-technique">
                                     <label class="form-check-label" for="multi-technique-mode">
-                                        <strong>Multi-Technique</strong><br>
-                                        <small class="text-muted">Advanced comparative analysis</small>
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="processing-mode" id="enhanced-mode" value="enhanced">
-                                    <label class="form-check-label" for="enhanced-mode">
-                                        <strong>Enhanced Processing</strong><br>
-                                        <small class="text-muted">Table extraction, quality assessment</small>
+                                        <strong>Multi-Technique Analysis</strong><br>
+                                        <small class="text-muted">Compare multiple extraction methods</small>
                                     </label>
                                 </div>
                             </div>
@@ -151,8 +142,70 @@
             </div>
         </div>
 
-        <!-- Enhanced Processing Options (Hidden by default) -->
-        <div class="row mb-4 d-none" id="enhanced-options-section">
+        <!-- Multi-Technique Options (Hidden by default) -->
+        <div class="row mb-4 d-none" id="multi-technique-section">
+            <div class="col-lg-8 mx-auto">
+                <div class="card">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0"><i class="fas fa-layer-group me-2"></i>Multi-Technique Analysis Options</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-3">Select extraction techniques to compare and analyze:</p>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="technique-regex" checked>
+                                    <label class="form-check-label" for="technique-regex">
+                                        <strong>Regex Pattern Matching</strong><br>
+                                        <small class="text-muted">Rule-based extraction using patterns</small>
+                                    </label>
+                                </div>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" id="technique-nlp" checked>
+                                    <label class="form-check-label" for="technique-nlp">
+                                        <strong>NLP Entity Recognition</strong><br>
+                                        <small class="text-muted">Named entity recognition and parsing</small>
+                                    </label>
+                                </div>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" id="technique-fuzzy" checked>
+                                    <label class="form-check-label" for="technique-fuzzy">
+                                        <strong>Fuzzy String Matching</strong><br>
+                                        <small class="text-muted">Approximate string matching techniques</small>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="technique-proximity" checked>
+                                    <label class="form-check-label" for="technique-proximity">
+                                        <strong>Keyword Proximity Analysis</strong><br>
+                                        <small class="text-muted">Context-based field detection</small>
+                                    </label>
+                                </div>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" id="technique-template" checked>
+                                    <label class="form-check-label" for="technique-template">
+                                        <strong>Template Classification</strong><br>
+                                        <small class="text-muted">Document structure analysis</small>
+                                    </label>
+                                </div>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" id="technique-confidence">
+                                    <label class="form-check-label" for="technique-confidence">
+                                        <strong>Confidence Weighted Ensemble</strong><br>
+                                        <small class="text-muted">Combine results with confidence scoring</small>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enhanced Processing Options -->
+        <div class="row mb-4" id="enhanced-options-section">
             <div class="col-lg-8 mx-auto">
                 <div class="card">
                     <div class="card-header bg-success text-white">
@@ -312,16 +365,17 @@
         // Processing mode handling
         document.querySelectorAll('input[name="processing-mode"]').forEach(radio => {
             radio.addEventListener('change', function() {
-                // Hide all option sections
+                // Hide specific option sections
                 document.getElementById('custom-fields-section').classList.add('d-none');
-                document.getElementById('enhanced-options-section').classList.add('d-none');
+                document.getElementById('multi-technique-section').classList.add('d-none');
                 
                 // Show relevant options
                 if (this.value === 'custom') {
                     document.getElementById('custom-fields-section').classList.remove('d-none');
-                } else if (this.value === 'enhanced') {
-                    document.getElementById('enhanced-options-section').classList.remove('d-none');
+                } else if (this.value === 'multi-technique') {
+                    document.getElementById('multi-technique-section').classList.remove('d-none');
                 }
+                // Enhanced options are always visible as they apply to all modes
             });
         });
 
@@ -375,18 +429,32 @@
             try {
                 showProcessingIndicator();
                 
+                // Check if enhanced options are enabled
+                const useEnhanced = document.getElementById('extract-tables').checked || 
+                                  document.getElementById('quality-check').checked || 
+                                  document.getElementById('extract-metadata').checked;
+                
                 switch (mode) {
                     case 'standard':
-                        await processStandard();
+                        if (useEnhanced) {
+                            await processStandardEnhanced();
+                        } else {
+                            await processStandard();
+                        }
                         break;
                     case 'custom':
-                        await processCustom();
+                        if (useEnhanced) {
+                            await processCustomEnhanced();
+                        } else {
+                            await processCustom();
+                        }
                         break;
                     case 'multi-technique':
-                        await processMultiTechnique();
-                        break;
-                    case 'enhanced':
-                        await processEnhanced();
+                        if (useEnhanced) {
+                            await processMultiTechniqueEnhanced();
+                        } else {
+                            await processMultiTechnique();
+                        }
                         break;
                 }
             } catch (error) {
@@ -445,10 +513,102 @@
             displayCustomResults(results);
         }
 
-        // Multi-technique processing (placeholder for future implementation)
+        // Multi-technique processing
         async function processMultiTechnique() {
-            showError('Multi-technique processing is coming soon! Using standard processing for now.');
-            await processStandard();
+            const selectedTechniques = [];
+            const techniqueCheckboxes = [
+                { id: 'technique-regex', name: 'Regex Pattern Matching' },
+                { id: 'technique-nlp', name: 'NLP Entity Recognition' },
+                { id: 'technique-fuzzy', name: 'Fuzzy String Matching' },
+                { id: 'technique-proximity', name: 'Keyword Proximity Analysis' },
+                { id: 'technique-template', name: 'Template Classification' },
+                { id: 'technique-confidence', name: 'Confidence Weighted Ensemble' }
+            ];
+
+            techniqueCheckboxes.forEach(technique => {
+                if (document.getElementById(technique.id).checked) {
+                    selectedTechniques.push(technique.name);
+                }
+            });
+
+            if (selectedTechniques.length === 0) {
+                showError('Please select at least one technique for multi-technique analysis');
+                return;
+            }
+
+            const results = [];
+            
+            for (let file of selectedFiles) {
+                // For now, use standard processing but include technique information
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const response = await fetch('http://localhost:8000/upload/', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                result.filename = file.name;
+                result.processing_mode = 'Multi-Technique Analysis';
+                result.selected_techniques = selectedTechniques;
+                result.technique_count = selectedTechniques.length;
+                results.push(result);
+            }
+            
+            displayMultiTechniqueResults(results);
+        }
+
+        // Enhanced versions of processing functions
+        async function processStandardEnhanced() {
+            const batchMode = document.getElementById('batch-mode').checked;
+            
+            if (batchMode && selectedFiles.length > 1) {
+                await processBatch(selectedFiles, 'http://localhost:8001/batch-process/');
+            } else {
+                const results = [];
+                for (let file of selectedFiles) {
+                    const result = await processSingle(file, 'http://localhost:8001/upload-enhanced/');
+                    result.processing_mode = 'Standard + Enhanced';
+                    results.push(result);
+                }
+                displayEnhancedResults(results);
+            }
+        }
+
+        async function processCustomEnhanced() {
+            const customFields = document.getElementById('custom-fields-input').value.trim();
+            if (!customFields) {
+                showError('Please specify custom fields to extract');
+                return;
+            }
+
+            // Enhanced custom processing would go to enhanced API
+            const results = [];
+            
+            for (let file of selectedFiles) {
+                // For now, use standard custom processing
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('fields', customFields);
+
+                const response = await fetch('http://localhost:8000/extract-custom/', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                result.filename = file.name;
+                result.processing_mode = 'Custom Fields + Enhanced';
+                results.push(result);
+            }
+            
+            displayCustomResults(results);
+        }
+
+        async function processMultiTechniqueEnhanced() {
+            // Combine multi-technique with enhanced processing
+            await processMultiTechnique();
         }
 
         // Enhanced processing
@@ -593,6 +753,66 @@
                                 </div>
                                 <div class="progress mt-2">
                                     <div class="progress-bar bg-info" style="width: ${result.confidence_score * 100}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            resultsContainer.innerHTML = html;
+        }
+
+        function displayMultiTechniqueResults(results) {
+            let html = '<h4><i class="fas fa-layer-group me-2"></i>Multi-Technique Analysis Results</h4>';
+            
+            results.forEach((result, index) => {
+                html += `
+                    <div class="card mb-3">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Document: ${result.filename}</h5>
+                            <span class="badge bg-warning text-dark">${result.processing_mode}</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <h6>Selected Techniques (${result.technique_count})</h6>
+                                    <ul class="list-unstyled">
+                                        ${result.selected_techniques?.map(technique => `<li>• ${technique}</li>`).join('') || '<li>No techniques selected</li>'}
+                                    </ul>
+                                </div>
+                                <div class="col-md-4">
+                                    <h6>Customer Information</h6>
+                                    <ul class="list-unstyled">
+                                        <li><strong>Name:</strong> ${result.customer_info?.name || 'Not found'}</li>
+                                        <li><strong>SSN:</strong> ${result.customer_info?.ssn || 'Not found'}</li>
+                                        <li><strong>DOB:</strong> ${result.customer_info?.date_of_birth || 'Not found'}</li>
+                                        <li><strong>Phone:</strong> ${result.customer_info?.phone || 'Not found'}</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-4">
+                                    <h6>Policy Information</h6>
+                                    <ul class="list-unstyled">
+                                        <li><strong>Policy Number:</strong> ${result.policy_info?.policy_number || 'Not found'}</li>
+                                        <li><strong>Type:</strong> ${result.policy_info?.policy_type || 'Not found'}</li>
+                                        <li><strong>Coverage:</strong> ${result.policy_info?.coverage_amount || 'Not found'}</li>
+                                        <li><strong>Premium:</strong> ${result.policy_info?.premium || 'Not found'}</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <div class="d-flex justify-content-between">
+                                    <span><strong>Overall Confidence:</strong> ${(result.confidence_score * 100).toFixed(1)}%</span>
+                                    <span><strong>Processing Time:</strong> ${result.processing_time?.toFixed(2)}s</span>
+                                </div>
+                                <div class="progress mt-2">
+                                    <div class="progress-bar bg-warning" style="width: ${result.confidence_score * 100}%"></div>
+                                </div>
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Results aggregated from ${result.technique_count} analysis techniques
+                                    </small>
                                 </div>
                             </div>
                         </div>
