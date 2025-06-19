@@ -377,21 +377,8 @@
 
         // Get the correct API base URL for this environment
         function getAPIBaseURL(port = 8000) {
-            // In Replit, check if we're in the iframe environment
-            const hostname = window.location.hostname;
-            
-            if (hostname.includes('replit.')) {
-                // Extract the repl info from current URL
-                const urlParts = hostname.split('-');
-                if (urlParts.length >= 3) {
-                    const replId = urlParts.slice(1, -2).join('-');
-                    const owner = urlParts[urlParts.length - 2];
-                    return `https://${port}-${replId}.${owner}.repl.co`;
-                }
-            }
-            
-            // Fallback to localhost for local development
-            return `http://localhost:${port}`;
+            // Use Django proxy endpoints for reliable connectivity
+            return `${window.location.origin}/api`;
         }
 
         // API Status Check Function
