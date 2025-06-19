@@ -2,7 +2,7 @@
 
 A sophisticated full-stack application for intelligent document information extraction using advanced local NLP processing techniques, featuring a modern Django frontend and FastAPI backend.
 
-## Architecture
+## 🏗️ Architecture
 
 This application uses a **hybrid architecture** combining the best of both frameworks:
 
@@ -11,7 +11,7 @@ This application uses a **hybrid architecture** combining the best of both frame
 - **Communication**: RESTful API integration between frontend and backend
 - **Processing**: Entirely local - no external API dependencies
 
-## Features
+## ✨ Features
 
 ### Rich Dashboard Interface
 - **Modern Bootstrap 5 UI**: Professional, responsive design with dark theme support
@@ -33,12 +33,43 @@ This application uses a **hybrid architecture** combining the best of both frame
 - **Real-time Processing**: Instant extraction with confidence scoring
 - **Template Learning**: Ability to learn and recognize new document patterns
 
-## Quick Start
+### Advanced Features (Phase 2)
+- **Template Classification**: Recognizes 3,700+ document varieties across 10+ categories
+- **State Compliance Detection**: Identifies requirements for all 50 US states
+- **Enhanced Confidence Scoring**: Multi-algorithm validation with detailed confidence metrics
+- **Organization Detection**: Identifies business entities and organizations
+- **Document Complexity Analysis**: Assesses document structure and processing requirements
+- **Template Learning**: Ability to learn and recognize new document patterns
+- **Multi-technique Comparative Analysis**: Compare 10 different extraction methods with individual confidence scores
+
+### Extraction Techniques
+1. **Regex Pattern Matching** - Structured data identification
+2. **Fuzzy String Matching** - Keyword proximity analysis  
+3. **Keyword Proximity Analysis** - Distance-based value extraction
+4. **Levenshtein Distance Matching** - Edit distance calculations
+5. **Statistical Frequency Analysis** - Pattern frequency evaluation
+6. **Context-Aware Extraction** - Semantic relationship mapping
+7. **Template-Based Extraction** - Document structure recognition
+8. **Position-Based Extraction** - Layout and position patterns
+9. **Pattern Ensemble Method** - Combined technique approach
+10. **Confidence-Weighted Extraction** - Machine learning enhanced
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Python 3.8+
+- Django 5.2+
+- FastAPI
+- Required Python packages (see Installation)
 
 ### Installation
 ```bash
+# Clone the repository
+git clone <repository-url>
+cd nlp-document-extraction
+
 # Install required dependencies
-pip install django django-cors-headers fastapi uvicorn pdfplumber python-docx docx2txt python-multipart pydantic requests
+pip install django django-cors-headers fastapi uvicorn pdfplumber python-docx docx2txt python-multipart pydantic requests fuzzywuzzy python-levenshtein spacy joblib
 ```
 
 ### Run the Application
@@ -52,7 +83,7 @@ python main_simple.py
 python manage.py runserver 0.0.0.0:5000
 ```
 
-#### Method 2: FastAPI Only (Original Interface)
+#### Method 2: FastAPI Only (API Access)
 ```bash
 python main_simple.py
 ```
@@ -65,741 +96,166 @@ python main_simple.py
 
 > **Important**: Always use `http://localhost:5000` for the web interface. The FastAPI backend at port 8000 is for API calls only.
 
-## Architecture
-
-This application follows a **modular, layered architecture** designed for maintainability, extensibility, and clear separation of concerns.
-
-### Core Components
+## 📁 Project Structure
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    Web Interface Layer                      │
-│  ┌─────────────────┐  ┌─────────────────┐                 │
-│  │  FastAPI Web    │  │   REST API      │                 │
-│  │   Interface     │  │   Endpoints     │                 │
-│  └─────────────────┘  └─────────────────┘                 │
-└─────────────────────────────────────────────────────────────┘
-                              │
-┌─────────────────────────────────────────────────────────────┐
-│                 Business Logic Layer                        │
-│  ┌─────────────────┐  ┌─────────────────┐                 │
-│  │   Document      │  │   Field         │                 │
-│  │  Classification │  │  Extraction     │                 │
-│  └─────────────────┘  └─────────────────┘                 │
-└─────────────────────────────────────────────────────────────┘
-                              │
-┌─────────────────────────────────────────────────────────────┐
-│                Data Processing Layer                        │
-│  ┌─────────────────┐  ┌─────────────────┐                 │
-│  │   Document      │  │   Pattern       │                 │
-│  │   Processor     │  │   Matching      │                 │
-│  └─────────────────┘  └─────────────────┘                 │
-└─────────────────────────────────────────────────────────────┘
+nlp-document-extraction/
+├── main_simple.py              # FastAPI backend application
+├── manage.py                   # Django management script
+├── dashboard/                  # Django frontend application
+│   ├── views.py               # Frontend views and API proxying
+│   ├── urls.py                # URL routing
+│   └── templates/             # HTML templates
+├── static/                    # Static assets (CSS, JS, images)
+│   ├── css/dashboard.css      # Modern dashboard styling
+│   └── js/dashboard.js        # Interactive functionality
+├── nlp_dashboard/             # Django project settings
+├── templates/                 # FastAPI templates (legacy)
+├── docs/                      # Documentation files
+├── advanced_models.py         # Pydantic models for advanced features
+├── models.py                  # Basic Pydantic models
+├── document_processor.py      # Multi-format document processing
+├── simple_extractor.py        # Dynamic field extraction engine
+├── multi_technique_extractor_simple.py  # Multi-technique analysis
+├── template_classifier.py     # Document template classification
+├── confidence_scorer.py       # Advanced confidence scoring
+└── README.md                  # This file
 ```
 
-### Architecture Principles
-
-**1. Separation of Concerns**
-- Each module handles a specific responsibility
-- Clear interfaces between components
-- Independent testing and development
-
-**2. Extensibility**
-- New document types easily added via pattern configuration
-- Custom field extraction through strategy pattern
-- Pluggable document processors for new formats
-
-**3. Local Processing**
-- No external API dependencies
-- All processing happens locally for data privacy
-- Fast response times without network calls
-
-**4. Dual Processing Modes**
-- **Standard Mode**: Predefined field extraction for common use cases
-- **Custom Mode**: User-specified field extraction for flexible needs
-
-### Component Details
-
-**main_simple.py** - *Application Controller*
-- FastAPI application setup and routing
-- Request/response handling and validation
-- Coordinates between all other components
-
-**document_processor.py** - *Document Handler*
-- Multi-format document text extraction (PDF, DOCX, DOC, MD)
-- Document type classification using keyword scoring
-- Text preprocessing and cleaning
-
-**simple_extractor.py** - *Information Extractor*
-- Pattern-based field extraction using regex
-- Strategy pattern for different field types
-- Contextual field matching for custom requests
-
-**models.py** - *Data Models*
-- Pydantic models for request/response validation
-- Type safety and automatic serialization
-- API documentation generation
-
-**templates/index.html** - *User Interface*
-- Responsive web interface with drag-and-drop
-- Real-time extraction results display
-- Support for both processing modes
-
-### Data Flow
-
-```
-Document Upload → Text Extraction → Document Classification → Field Extraction → Response
-```
-
-1. **Upload**: User uploads document via web UI or API
-2. **Extraction**: Document processor extracts text based on file type
-3. **Classification**: System categorizes document into predefined types
-4. **Field Extraction**: Extractor applies patterns to find requested information
-5. **Response**: Structured data returned with confidence scores
-
-## Project Flow & File Execution Order
-
-### Custom Fields Extraction Flow (`/extract-custom/`)
-
-When you call the custom fields endpoint, files are executed in this precise order:
-
-```
-POST /extract-custom/ → main_simple.py → document_processor.py → simple_extractor.py → models.py
-```
-
-#### Detailed Execution Flow:
-
-**1. main_simple.py** - `extract_custom_fields()` function
-```python
-# Request handling and validation
-- Receives file upload and fields parameter
-- Validates file type (.pdf, .docx, .doc, .md)
-- Parses comma-separated fields string
-- Creates temporary file for processing
-```
-
-**2. document_processor.py** - `DocumentProcessor` class
-```python
-# Text extraction based on file type
-extract_text(file_path, file_type):
-  ├── PDF files → _extract_pdf_text() using pdfplumber
-  ├── DOCX files → _extract_docx_text() using python-docx
-  ├── DOC files → _extract_doc_text() using docx2txt
-  └── MD files → _extract_md_text() using built-in file reading
-
-# Document classification
-classify_document_type(text):
-  └── Keyword-based scoring across 7 document types
-```
-
-**3. simple_extractor.py** - `SimpleDynamicExtractor` class
-```python
-# Field extraction strategy
-extract_custom_fields(text, field_list):
-  ├── Initialize all requested fields with None
-  ├── For each field in field_list:
-  │   ├── Check extraction_strategies mapping
-  │   ├── Apply specific pattern if found
-  │   └── Fall back to contextual_field extraction
-  └── Calculate confidence score
-```
-
-**4. models.py** - `DynamicExtractionResult` model
-```python
-# Response serialization and validation
-- Structures extracted data into JSON response
-- Validates data types and constraints
-- Generates API documentation schema
-```
-
-### Standard Fields Extraction Flow (`/upload/`)
-
-```
-POST /upload/ → main_simple.py → document_processor.py → simple_extractor.py → models.py
-```
-
-**Execution differences from custom fields:**
-- Uses predefined field list: `['name', 'email', 'phone', 'address', 'date', 'company', 'amount']`
-- Returns `ExtractionResult` model instead of `DynamicExtractionResult`
-- Separates results into `customer_info` and `policy_info` categories
-
-### Web Interface Flow (`/`)
-
-```
-GET / → main_simple.py → templates/index.html
-```
-
-**File interactions:**
-1. **main_simple.py** - `root()` function serves HTML template
-2. **templates/index.html** - Renders interactive web interface
-   - Drag-and-drop file upload area
-   - Processing mode selection (Standard/Custom)
-   - Real-time results display
-   - Error handling and validation messages
-
-### Health Check Flow (`/health`)
-
-```
-GET /health → main_simple.py (health_check function)
-```
-
-**Simple status endpoint:**
-- Returns server status and timestamp
-- No other file dependencies
-- Used for monitoring and uptime checks
-
-### API Information Flow (`/api`)
-
-```
-GET /api → main_simple.py (api_info function)
-```
-
-**Returns metadata about:**
-- Supported file formats
-- Available endpoints
-- API version information
-
-## Detailed File Responsibilities
-
-### main_simple.py - Application Controller
-**Primary Functions:**
-- `extract_custom_fields()` - Handles custom field extraction requests
-- `upload_document()` - Processes standard field extraction
-- `root()` - Serves web interface
-- `health_check()` - System status endpoint
-- `api_info()` - API metadata endpoint
-
-**Key Responsibilities:**
-- HTTP request/response handling
-- File upload validation and temporary storage
-- Field parameter parsing and validation
-- Error handling and HTTP status codes
-- Coordination between all components
-
-### document_processor.py - Document Handler
-**Primary Class:** `DocumentProcessor`
-
-**Key Methods:**
-- `extract_text()` - Main text extraction router
-- `_extract_pdf_text()` - PDF processing with pdfplumber
-- `_extract_docx_text()` - DOCX processing with python-docx
-- `_extract_doc_text()` - Legacy DOC processing with docx2txt
-- `_extract_md_text()` - Markdown processing with file reading
-- `classify_document_type()` - Document categorization
-
-**Processing Logic:**
-```python
-def extract_text(file_path, file_type):
-    if file_type == 'pdf':
-        return self._extract_pdf_text(file_path)
-    elif file_type in ['docx']:
-        return self._extract_docx_text(file_path)
-    elif file_type == 'doc':
-        return self._extract_doc_text(file_path)
-    elif file_type == 'md':
-        return self._extract_md_text(file_path)
-```
-
-### simple_extractor.py - Information Extractor
-**Primary Class:** `SimpleDynamicExtractor`
-
-**Key Components:**
-- `extraction_strategies` - Field type mapping dictionary
-- `extract_custom_fields()` - Main extraction orchestrator
-- Pattern-specific extractors (e.g., `_extract_name`, `_extract_email`)
-- `_extract_contextual_field()` - Generic field extraction fallback
-- `calculate_confidence_score()` - Accuracy measurement
-
-**Strategy Pattern Implementation:**
-```python
-extraction_strategies = {
-    'name': self._extract_name,
-    'email': self._extract_email,
-    'phone': self._extract_phone,
-    'employee_id': self._extract_account_number,
-    # ... 40+ field mappings
-}
-```
-
-### models.py - Data Models
-**Key Models:**
-- `DynamicExtractionResult` - Custom field extraction response
-- `ExtractionResult` - Standard field extraction response  
-- `CustomerInfo` - Personal information structure
-- `PolicyInfo` - Document metadata structure
-
-**Validation Features:**
-- Type safety with Pydantic
-- Automatic JSON serialization
-- API documentation generation
-- Request/response validation
-
-### templates/index.html - User Interface
-**Frontend Components:**
-- File upload with drag-and-drop support
-- Processing mode toggle (Standard/Custom Fields)
-- Custom fields input with validation
-- Real-time extraction results display
-- Error handling and user feedback
-- Responsive design for mobile/desktop
-
-**JavaScript Functionality:**
-- Form submission handling
-- File validation (type, size)
-- AJAX requests to backend APIs
-- Dynamic result rendering
-- User interaction feedback
-
-## Field Extraction Deep Dive
-
-### Pattern Matching Hierarchy
-
-**Level 1: Direct Strategy Mapping**
-```python
-if field_name.lower() in extraction_strategies:
-    return extraction_strategies[field_name.lower()](text)
-```
-
-**Level 2: Contextual Field Search**
-```python
-# Searches for field_name patterns in document
-patterns = [
-    rf'\*\*{field_name}\*\*[:\s]*([^\n\r]+)',  # Markdown bold
-    rf'{field_name}[:\s]+([^\n\r]+)',          # Standard colon format
-    rf'{field_name}\s*:\s*([^\n]+)'            # Flexible spacing
-]
-```
-
-**Level 3: Field Name Variations**
-```python
-# Handles underscore to space conversion
-field_name_spaces = field_name.replace('_', ' ')
-# employee_id → "Employee ID" matching
-```
-
-This comprehensive flow ensures maximum extraction accuracy while maintaining flexibility for custom field requests.
-
-## Complete Execution Trace Example
-
-### Custom Field Request: `employee_id,salary,department`
-
-**Step-by-step execution with file interactions:**
-
-```
-1. POST /extract-custom/ (file=sample.pdf, fields="employee_id,salary,department")
-   ↓
-2. main_simple.py:extract_custom_fields()
-   ├── Validates file extension (.pdf)
-   ├── Parses fields: ["employee_id", "salary", "department"] 
-   ├── Creates temporary file: /tmp/tmpXXXXX.pdf
-   └── Calls document_processor.extract_text()
-   ↓
-3. document_processor.py:DocumentProcessor.extract_text()
-   ├── Detects file_type = "pdf"
-   ├── Calls _extract_pdf_text() using pdfplumber
-   ├── Returns extracted text (e.g., 2500 characters)
-   └── Calls classify_document_type()
-   ↓
-4. document_processor.py:classify_document_type()
-   ├── Scans text for keywords: "employee", "salary", "department"
-   ├── Scores document types (employment_document = 5 points)
-   └── Returns "employment_document"
-   ↓
-5. simple_extractor.py:SimpleDynamicExtractor.extract_custom_fields()
-   ├── Initializes result: {"employee_id": None, "salary": None, "department": None}
-   ├── For "employee_id":
-   │   ├── Checks extraction_strategies["employee_id"] → _extract_account_number
-   │   ├── Applies regex: r'(?:employee\s*(?:id|identifier))[:\s]*([A-Z0-9\-_]{3,15})'
-   │   └── Finds "EMP001234"
-   ├── For "salary": 
-   │   ├── Checks extraction_strategies["salary"] → _extract_currency_amount
-   │   ├── Applies regex: r'\$[\d,]+(?:\.\d{2})?'
-   │   └── Finds "$85,000"
-   ├── For "department":
-   │   ├── No direct strategy, calls _extract_contextual_field()
-   │   ├── Searches patterns: "department[:\s]+([^\n\r]+)"
-   │   └── Finds "Engineering"
-   └── Calculates confidence: 3/3 = 1.0 (100%)
-   ↓
-6. models.py:DynamicExtractionResult
-   ├── Validates extracted data types
-   ├── Serializes to JSON structure
-   └── Returns structured response
-   ↓
-7. main_simple.py response cleanup
-   ├── Deletes temporary file
-   ├── Calculates processing time
-   └── Returns HTTP 200 with JSON
-```
-
-**Final Response:**
-```json
-{
-  "document_type": "employment_document",
-  "extracted_fields": {
-    "employee_id": "EMP001234",
-    "salary": "$85,000", 
-    "department": "Engineering"
-  },
-  "confidence_score": 1.0,
-  "processing_time": 0.15,
-  "requested_fields": ["employee_id", "salary", "department"]
-}
-```
-
-## Error Handling Flows
-
-### Unsupported File Type Error
-```
-POST /extract-custom/ (file=document.txt) 
-→ main_simple.py validates extension
-→ Raises HTTPException(400, "Unsupported file type")
-→ No other files executed
-```
-
-### Text Extraction Failure
-```
-POST /extract-custom/ (corrupted PDF)
-→ main_simple.py → document_processor.py
-→ pdfplumber fails to read PDF
-→ Exception caught, raises HTTPException(400, "No text could be extracted")
-```
-
-### Empty Fields Parameter
-```
-POST /extract-custom/ (fields="")
-→ main_simple.py detects empty fields
-→ Uses default field list: ['name', 'email', 'phone', 'address', 'date', 'company', 'amount']
-→ Continues normal execution flow
-```
-
-## Performance Monitoring
-
-### File Processing Metrics
-- **PDF documents**: ~50-200ms (depends on page count)
-- **DOCX documents**: ~20-100ms (depends on content complexity)
-- **DOC documents**: ~30-150ms (legacy format overhead)
-- **MD documents**: ~10-50ms (fastest, plain text)
-
-### Memory Usage Patterns
-- **document_processor.py**: Peak during text extraction
-- **simple_extractor.py**: Constant during pattern matching
-- **Temporary files**: Cleaned up immediately after processing
-
-### Bottleneck Identification
-- **Largest impact**: Document size and complexity
-- **Secondary factors**: Number of requested fields
-- **Optimization opportunities**: Regex compilation caching (already implemented)
-
-## System Extension Guide
-
-### Adding New Field Types
-
-**Step 1:** Add to extraction strategies mapping in `simple_extractor.py`:
-```python
-def _define_extraction_strategies(self):
-    self.extraction_strategies = {
-        # ... existing mappings
-        'new_field_type': self._extract_new_field,
-        'alternate_name': self._extract_new_field,  # Multiple aliases
-    }
-```
-
-**Step 2:** Implement extraction method:
-```python
-def _extract_new_field(self, text: str) -> Optional[str]:
-    """Extract new field type using regex patterns"""
-    patterns = [
-        r'new_field[:\s]+([^\n\r]+)',
-        r'alternative_pattern[:\s]+([^,;]+)',
-    ]
-    
-    for pattern in patterns:
-        match = re.search(pattern, text, re.I)
-        if match:
-            return match.group(1).strip()
-    return None
-```
-
-**Step 3:** Test with various document formats and update documentation.
-
-### Adding New Document Formats
-
-**Step 1:** Install required parser library:
-```bash
-pip install new-format-parser
-```
-
-**Step 2:** Add extraction method in `document_processor.py`:
-```python
-def _extract_newformat_text(self, file_path: str) -> str:
-    """Extract text from new format files"""
-    try:
-        import new_format_parser
-        with open(file_path, 'rb') as file:
-            content = new_format_parser.extract_text(file)
-            return content
-    except Exception as e:
-        raise Exception(f"Failed to extract text from new format: {str(e)}")
-```
-
-**Step 3:** Update main extraction router:
-```python
-def extract_text(self, file_path: str, file_type: str) -> str:
-    # ... existing conditions
-    elif file_type == 'newformat':
-        return self._extract_newformat_text(file_path)
-```
-
-**Step 4:** Add to allowed extensions in `main_simple.py`:
-```python
-allowed_extensions = {'.pdf', '.docx', '.doc', '.md', '.newformat'}
-```
-
-### Performance Optimization Tips
-
-**1. Regex Compilation Caching**
-- All patterns are pre-compiled in `__init__()` methods
-- Reduces processing time by 30-40%
-
-**2. Memory Management**
-- Temporary files automatically cleaned up
-- Text processing uses streaming where possible
-- No persistent storage of uploaded documents
-
-**3. Concurrent Processing**
-- Stateless design supports multiple simultaneous requests
-- No shared state between extraction operations
-- FastAPI handles concurrent requests efficiently
-
-This comprehensive flow documentation provides complete visibility into how every feature executes and how files interact throughout the entire application lifecycle.
-
-### Pattern Matching Strategy
-
-The extraction engine uses a **multi-tier pattern matching approach**:
-
-1. **Direct Mapping**: Known field types use optimized regex patterns
-2. **Contextual Search**: Unknown fields use contextual keyword matching
-3. **Fallback Patterns**: Generic patterns for edge cases
-
-This ensures high accuracy for common fields while maintaining flexibility for custom requirements.
-
-## Technical Implementation
-
-### Extraction Algorithm
-
-The system employs a **hybrid extraction approach** combining multiple techniques:
-
-```python
-# 1. Strategy Pattern for Field Types
-extraction_strategies = {
-    'name': extract_name_patterns,
-    'email': extract_email_regex,
-    'phone': extract_phone_patterns,
-    'employee_id': extract_account_number_patterns,
-    # ... extensible mapping
-}
-
-# 2. Multi-tier Pattern Matching
-def extract_field(text, field_name):
-    # Tier 1: Direct strategy mapping
-    if field_name in strategies:
-        return strategies[field_name](text)
-    
-    # Tier 2: Contextual keyword search
-    return contextual_extraction(text, field_name)
-```
-
-### Document Processing Pipeline
-
-```
-File Upload → Format Detection → Text Extraction → Preprocessing → Field Extraction → Response
-```
-
-**Format Detection**: Automatic file type identification based on extension
-**Text Extraction**: Format-specific parsers (pdfplumber, python-docx, docx2txt)
-**Preprocessing**: Text cleaning and normalization
-**Field Extraction**: Pattern matching with confidence scoring
-
-### Confidence Scoring Algorithm
-
-```python
-confidence = extracted_fields_count / requested_fields_count
-```
-
-The system provides transparency in extraction accuracy, helping users understand result reliability.
-
-### Performance Characteristics
-
-- **Processing Speed**: < 100ms for typical documents
-- **Memory Usage**: Efficient streaming for large documents
-- **Accuracy**: 85-95% for common field types
-- **Scalability**: Stateless design supports concurrent requests
-
-## Documentation
-
-All project documentation is organized in the `docs/` folder:
-- `docs/git-integration-fix.md` - Git integration troubleshooting
-- `docs/replit-git-guide.md` - Replit-specific git setup guide
-- `docs/sample_test.md` - Sample document for testing extraction
-
-## API Usage
-
-### Standard Extraction
-```bash
-curl -X POST "http://localhost:8000/upload/" \
-  -H "Content-Type: multipart/form-data" \
-  -F "file=@document.pdf"
-```
+## 🔧 Core Components
+
+### 1. Document Processor (`document_processor.py`)
+- Multi-format text extraction (PDF, DOCX, DOC, MD)
+- Document type classification
+- Error handling for corrupted files
+
+### 2. Simple Dynamic Extractor (`simple_extractor.py`)
+- Pattern-based field extraction
+- Fuzzy string matching
+- Contextual analysis
+- Custom field processing
+
+### 3. Multi-Technique Extractor (`multi_technique_extractor_simple.py`)
+- Comparative analysis across 10 techniques
+- Individual confidence scoring
+- Consolidated result generation
+- Performance ranking
+
+### 4. Template Classifier (`template_classifier.py`)
+- Recognition of 3,700+ document varieties
+- State-specific compliance detection
+- Organization identification
+- Template learning capabilities
+
+### 5. Confidence Scorer (`confidence_scorer.py`)
+- Multi-algorithm validation
+- Quality grade assignment
+- Risk factor assessment
+- Detailed confidence metrics
+
+### 6. Django Frontend (`dashboard/`)
+- Modern Bootstrap 5 interface
+- Real-time progress tracking
+- Interactive result visualization
+- Multi-mode processing support
+
+## 📊 Usage Examples
+
+### Standard Field Extraction
+Upload a document and extract common fields like names, dates, addresses, phone numbers, and email addresses.
 
 ### Custom Field Extraction
-```bash
-curl -X POST "http://localhost:8000/extract-custom/" \
-  -H "Content-Type: multipart/form-data" \
-  -F "file=@document.pdf" \
-  -F "fields=name,email,employee_id,salary"
+Specify your own fields:
+```
+policy_number, issue_date, coverage_amount, premium, beneficiary_name
 ```
 
-### Markdown File Processing
-```bash
-curl -X POST "http://localhost:8000/upload/" \
-  -H "Content-Type: multipart/form-data" \
-  -F "file=@docs/sample_test.md"
-```
+### Multi-Technique Analysis
+Compare results from all 10 extraction techniques to find the most reliable method for your document type.
 
-## Project Structure
+## 🔍 API Endpoints
 
-```
-├── main_simple.py          # Main FastAPI application
-├── models.py               # Pydantic data models
-├── document_processor.py   # Document text extraction
-├── simple_extractor.py     # Pattern-based field extraction
-├── templates/index.html    # Web interface
-├── docs/                   # Documentation folder
-│   ├── git-integration-fix.md
-│   ├── replit-git-guide.md
-│   └── sample_test.md      # Test document
-└── README.md               # This file
-```
+### FastAPI Backend (`http://localhost:8000`)
+- `POST /upload/` - Standard field extraction
+- `POST /extract-custom/` - Custom field extraction
+- `POST /multi-technique/` - Multi-technique analysis
+- `POST /upload/advanced/` - Advanced processing with template recognition
+- `GET /templates/` - List available templates
+- `POST /templates/learn/` - Learn new templates
+- `GET /state-requirements/{state}` - Get state-specific requirements
+- `GET /health` - Basic health check
+- `GET /docs` - API documentation
 
-## Document Types Supported
+### Django Frontend (`http://localhost:5000`)
+- `/` - Main dashboard interface
+- `/upload/` - Document upload (proxied to FastAPI)
+- `/extract-custom/` - Custom extraction (proxied to FastAPI)
+- `/multi-technique/` - Multi-technique analysis (proxied to FastAPI)
+- `/api/health/` - Combined health check
 
-The system automatically classifies documents into:
-- Employment documents
-- Financial documents  
-- Legal documents
-- Medical documents
-- Insurance documents
-- Educational documents
-- Identification documents
+## 🛠️ Configuration
 
-## Custom Field Examples
+### Environment Variables
+- `DEBUG`: Django debug mode (default: True)
+- `ALLOWED_HOSTS`: Django allowed hosts (default: ['*'])
+- `FASTAPI_BASE_URL`: FastAPI backend URL (default: http://localhost:8000)
 
-Extract any fields by specifying them as comma-separated values in Custom Fields mode:
+### File Upload Limits
+- Maximum file size: 50MB
+- Supported formats: PDF, DOCX, DOC, MD
+- Concurrent uploads: Unlimited
 
-**HR Documents**: `employee_id,department,salary,start_date,manager`
-```json
-{
-  "extracted_fields": {
-    "employee_id": "EMP001234",
-    "department": "Engineering",
-    "salary": "$85,000",
-    "start_date": "January 15, 2020",
-    "manager": "Sarah Johnson"
-  }
-}
-```
+## 🧪 Testing
 
-**Financial Records**: `account_number,balance,transaction_date,amount`
-**Legal Contracts**: `contract_number,party_1,party_2,effective_date,terms`
-**Medical Records**: `patient_id,diagnosis,treatment,doctor,visit_date`
-**Insurance Documents**: `policy_number,coverage_amount,premium,beneficiary`
+### Manual Testing
+1. Start both servers (Django + FastAPI)
+2. Navigate to `http://localhost:5000`
+3. Upload test documents in different formats
+4. Try all three processing modes
+5. Verify results and confidence scores
 
-### Field Recognition Capabilities
+### API Testing
+Use the built-in Swagger UI at `http://localhost:8000/docs` to test API endpoints directly.
 
-The system recognizes field variations automatically:
-- `employee_id` → matches "Employee ID", "Staff ID", "Worker ID"
-- `date_of_birth` → matches "DOB", "Birth Date", "Date of Birth"
-- `phone_number` → matches "Phone", "Telephone", "Mobile"
-- `email_address` → matches "Email", "E-mail", "Electronic Mail"
+## 🔒 Security Features
 
-## API Documentation
+- **Local Processing**: No data sent to external services
+- **File Validation**: Strict file type and size validation
+- **Error Handling**: Comprehensive error handling and logging
+- **CORS Configuration**: Proper cross-origin request handling
+- **Input Sanitization**: Protection against malicious inputs
 
-Interactive API documentation available at:
-- Swagger UI: `http://localhost:8000/docs`
-- ReDoc: `http://localhost:8000/redoc`
+## 📈 Performance
 
-## Deployment & Usage Patterns
+- **Processing Speed**: 2-5 seconds per document (varies by size and complexity)
+- **Memory Usage**: Optimized for documents up to 50MB
+- **Concurrent Requests**: Supports multiple simultaneous uploads
+- **Caching**: Template and pattern caching for improved performance
 
-### Production Deployment
+## 🤝 Contributing
 
-```bash
-# Production server with multiple workers
-uvicorn main_simple:app --host 0.0.0.0 --port 8000 --workers 4
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes with comprehensive comments
+4. Test thoroughly across all processing modes
+5. Submit a pull request with detailed description
 
-# Docker deployment (optional)
-FROM python:3.11-slim
-COPY . /app
-WORKDIR /app
-RUN pip install -r requirements.txt
-EXPOSE 8000
-CMD ["python", "main_simple.py"]
-```
+## 📝 License
 
-### Integration Examples
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-**Batch Processing**
-```python
-import requests
+## 📞 Support
 
-files = ['doc1.pdf', 'doc2.docx', 'doc3.md']
-for file in files:
-    with open(file, 'rb') as f:
-        response = requests.post(
-            'http://localhost:8000/extract-custom/',
-            files={'file': f},
-            data={'fields': 'name,email,phone'}
-        )
-        print(response.json())
-```
+For support, bug reports, or feature requests:
+- Create an issue in the repository
+- Review the API documentation at `/docs`
+- Check the health endpoints for system status
 
-**Custom Field Pipeline**
-```python
-# Extract different fields based on document type
-hr_fields = 'employee_id,department,salary,manager'
-finance_fields = 'account_number,balance,transaction_date'
-legal_fields = 'contract_number,parties,effective_date'
-```
+## 🔄 Version History
 
-### Security Considerations
+- **v2.0.0**: Django frontend integration, multi-technique analysis, advanced features
+- **v1.0.0**: Initial FastAPI backend with basic extraction capabilities
 
-- **Local Processing**: No data leaves your infrastructure
-- **File Validation**: Automatic file type and size validation
-- **Input Sanitization**: All user inputs are validated via Pydantic models
-- **No Storage**: Uploaded files are processed and immediately deleted
+---
 
-### Monitoring & Health Checks
-
-```bash
-# Health check endpoint
-curl http://localhost:8000/health
-
-# API information
-curl http://localhost:8000/api
-```
-
-## Contributing
-
-The project follows a clean, modular architecture for easy maintenance and extension. All core functionality is contained in focused modules with clear separation of concerns.
-
-### Adding New Field Types
-
-1. Add pattern to `simple_extractor.py` extraction strategies
-2. Update field mappings in `_define_extraction_strategies()`
-3. Test with various document formats
-
-### Adding New Document Formats
-
-1. Add parser to `document_processor.py`
-2. Update `extract_text()` method with new format handling
-3. Add format to allowed extensions in `main_simple.py`
+**NLP Document Extraction Platform** - Intelligent document processing with advanced NLP capabilities.
