@@ -15,15 +15,15 @@ class DocumentProcessor:
     """
     
     def __init__(self):
-        self.supported_formats = ['pdf', 'docx', 'doc']
+        self.supported_formats = ['pdf', 'docx', 'doc', 'md']
     
     def extract_text(self, file_path: str, file_type: str) -> str:
         """
-        Extract text from PDF, DOCX, or DOC files
+        Extract text from PDF, DOCX, DOC, or MD files
         
         Args:
             file_path: Path to the document file
-            file_type: Type of file (pdf, docx, doc)
+            file_type: Type of file (pdf, docx, doc, md)
             
         Returns:
             Extracted text as string
@@ -44,6 +44,10 @@ class DocumentProcessor:
                 return self._extract_docx_text(file_path)
             elif file_type == 'doc':
                 return self._extract_doc_text(file_path)
+            elif file_type == 'md':
+                return self._extract_md_text(file_path)
+            else:
+                raise ValueError(f"Unsupported file type: {file_type}")
         except Exception as e:
             logger.error(f"Error extracting text from {file_type} file: {str(e)}")
             raise Exception(f"Failed to extract text from {file_type} file: {str(e)}")
@@ -110,6 +114,54 @@ class DocumentProcessor:
             
         except Exception as e:
             raise Exception(f"DOC processing error: {str(e)}")
+    
+    def _extract_md_text(self, file_path: str) -> str:
+        """Extract text from Markdown files"""
+        try:
+            with open(file_path, 'r', encoding='utf-8') as file:
+                md_content = file.read()
+            
+            if not md_content.strip():
+                raise Exception("No content found in Markdown file")
+            
+            # Remove Markdown syntax for cleaner text extraction
+            import re
+            
+            # Remove headers (# ## ###)
+            md_content = re.sub(r'^#{1,6}\s+', '', md_content, flags=re.MULTILINE)
+            
+            # Remove bold and italic markers
+            md_content = re.sub(r'\*\*([^*]+)\*\*', r'\1', md_content)  # **bold**
+            md_content = re.sub(r'\*([^*]+)\*', r'\1', md_content)      # *italic*
+            md_content = re.sub(r'__([^_]+)__', r'\1', md_content)      # __bold__
+            md_content = re.sub(r'_([^_]+)_', r'\1', md_content)        # _italic_
+            
+            # Remove code blocks
+            md_content = re.sub(r'```[^`]*```', '', md_content, flags=re.DOTALL)
+            md_content = re.sub(r'`([^`]+)`', r'\1', md_content)        # inline code
+            
+            # Remove links but keep link text
+            md_content = re.sub(r'\[([^\]]+)\]\([^)]+\)', r'\1', md_content)
+            
+            # Remove images
+            md_content = re.sub(r'!\[[^\]]*\]\([^)]+\)', '', md_content)
+            
+            # Remove horizontal rules
+            md_content = re.sub(r'^[-*_]{3,}$', '', md_content, flags=re.MULTILINE)
+            
+            # Remove bullet points and numbers
+            md_content = re.sub(r'^\s*[-*+]\s+', '', md_content, flags=re.MULTILINE)
+            md_content = re.sub(r'^\s*\d+\.\s+', '', md_content, flags=re.MULTILINE)
+            
+            # Clean up extra whitespace
+            md_content = re.sub(r'\n\s*\n', '\n\n', md_content)
+            md_content = md_content.strip()
+            
+            logger.info(f"Successfully extracted {len(md_content)} characters from Markdown")
+            return md_content
+            
+        except Exception as e:
+            raise Exception(f"Markdown processing error: {str(e)}")
     
     def classify_document_type(self, text: str) -> str:
         """

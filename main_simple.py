@@ -22,7 +22,7 @@ dynamic_extractor = SimpleDynamicExtractor()
 @app.post("/upload/", response_model=ExtractionResult)
 async def upload_document(file: UploadFile = File(...)):
     """
-    Upload and process documents (PDF, DOCX, DOC).
+    Upload and process documents (PDF, DOCX, DOC, MD).
     Extracts key-value information using NLP pattern matching.
     """
     start_time = time.time()
