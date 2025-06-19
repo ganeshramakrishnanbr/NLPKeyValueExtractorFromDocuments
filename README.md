@@ -2,14 +2,96 @@
 
 A sophisticated full-stack application for intelligent document information extraction using advanced local NLP processing techniques, featuring a modern Django frontend and FastAPI backend.
 
-## 🏗️ Architecture
+## 🏗️ Architecture & Project Structure
 
-This application uses a **hybrid architecture** combining the best of both frameworks:
+This application uses a **hybrid architecture** with a well-organized modular structure:
 
+### High-Level Architecture
 - **Frontend**: Django-based rich dashboard with Bootstrap 5 UI
-- **Backend**: FastAPI NLP processing engine
+- **Backend**: FastAPI NLP processing engine  
 - **Communication**: RESTful API integration between frontend and backend
 - **Processing**: Entirely local - no external API dependencies
+
+### Project Directory Structure
+
+```
+nlp-document-extraction/
+├── 📁 backend/                    # FastAPI Backend Services
+│   ├── 📁 models/                 # Data models and schemas
+│   │   ├── basic_models.py        # Core Pydantic models for API responses
+│   │   └── advanced_models.py     # Extended models for advanced features
+│   ├── 📁 processors/             # Document processing engines
+│   │   └── document_processor.py  # Multi-format text extraction (PDF, DOCX, DOC, MD)
+│   ├── 📁 extractors/             # Field extraction algorithms
+│   │   ├── simple_extractor.py    # Pattern-based field extraction
+│   │   └── multi_technique_extractor.py  # Comparative analysis engine
+│   ├── 📁 classifiers/            # ML classification components
+│   │   ├── template_classifier.py # Document template recognition
+│   │   └── confidence_scorer.py   # Multi-algorithm confidence scoring
+│   └── 📁 utils/                  # Backend utility functions
+│
+├── 📁 frontend/                   # Django Frontend Application
+│   ├── 📁 dashboard/              # Main dashboard Django app
+│   │   ├── views.py               # Frontend views and API proxying
+│   │   ├── urls.py                # URL routing configuration
+│   │   ├── models.py              # Django database models
+│   │   └── templates/             # HTML templates for UI
+│   ├── 📁 static/                 # Static assets (CSS, JS, images)
+│   │   ├── css/dashboard.css      # Modern Bootstrap 5 styling
+│   │   └── js/dashboard.js        # Interactive frontend functionality
+│   ├── 📁 config/                 # Django project configuration
+│   │   ├── settings.py            # Django settings
+│   │   ├── urls.py                # Root URL configuration
+│   │   └── wsgi.py                # WSGI application entry point
+│   ├── manage.py                  # Django management script
+│   └── db.sqlite3                 # SQLite database file
+│
+├── 📁 shared/                     # Shared components across services
+│   ├── 📁 models/                 # Common data models
+│   └── 📁 utils/                  # Shared utility functions
+│
+├── 📁 docs/                       # Documentation and guides
+│   ├── 📁 prompts/                # User interaction logs with timestamps
+│   ├── 📁 guides/                 # User guides and tutorials
+│   └── 📁 architecture/           # Technical architecture documentation
+│
+├── 📄 main_simple.py              # FastAPI backend entry point
+├── 📄 README.md                   # This documentation file
+├── 📄 pyproject.toml              # Python project dependencies
+└── 📄 uv.lock                     # Dependency lock file
+```
+
+### Folder Structure Explained
+
+#### 🔧 `/backend/` - FastAPI Backend Services
+The core NLP processing engine that handles all document analysis and field extraction.
+
+- **`/models/`**: Contains Pydantic data models that define API request/response schemas and data validation
+- **`/processors/`**: Document processing engines that extract text from various file formats (PDF, DOCX, DOC, MD)
+- **`/extractors/`**: Field extraction algorithms using pattern matching, fuzzy matching, and contextual analysis
+- **`/classifiers/`**: Machine learning classification components for document recognition and confidence scoring
+- **`/utils/`**: Backend utility functions and helper modules
+
+#### 🎨 `/frontend/` - Django Frontend Application  
+The user-facing web interface that provides a rich dashboard experience.
+
+- **`/dashboard/`**: Main Django application containing views, templates, and URL routing
+- **`/static/`**: Static web assets including CSS stylesheets, JavaScript files, and images
+- **`/config/`**: Django project configuration files including settings and WSGI configuration
+- **Database files**: SQLite database for Django application state
+
+#### 🔄 `/shared/` - Common Components
+Shared utilities and models used by both frontend and backend services.
+
+- **`/models/`**: Common data models shared between services
+- **`/utils/`**: Utility functions used across the application
+
+#### 📚 `/docs/` - Documentation Hub
+Comprehensive documentation including user guides and development notes.
+
+- **`/prompts/`**: **NEW**: Timestamped logs of all user prompts and interactions for development tracking
+- **`/guides/`**: User guides, tutorials, and how-to documentation  
+- **`/architecture/`**: Technical architecture documentation and system design notes
 
 ## ✨ Features
 
