@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Life Insurance Document Processor</title>
+    <title>NLP Key Value Extractor From Documents</title>
     <style>
         * {
             margin: 0;
@@ -296,13 +296,13 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Life Insurance Document Processor</h1>
-            <p>Upload your insurance documents to extract customer and policy information automatically</p>
+            <h1>NLP Key Value Extractor From Documents</h1>
+            <p>Upload any document to extract key information automatically using intelligent pattern recognition</p>
         </div>
 
         <div class="main-content">
             <div class="mode-selector" style="margin-bottom: 20px; text-align: center;">
-                <button class="mode-btn active" id="presetMode" onclick="switchMode('preset')">Insurance Fields</button>
+                <button class="mode-btn active" id="presetMode" onclick="switchMode('preset')">Standard Fields</button>
                 <button class="mode-btn" id="customMode" onclick="switchMode('custom')">Custom Fields</button>
             </div>
 
@@ -320,7 +320,7 @@
                     <textarea id="customFields" placeholder="Enter field names separated by commas (e.g., name, email, phone, address, policy_number, date_of_birth, company_name) or leave empty for default extraction" 
                              style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-family: inherit; font-size: 14px; height: 80px; resize: vertical;"></textarea>
                     <div style="margin-top: 10px; font-size: 0.9em; color: #666;">
-                        <strong>Common fields:</strong> name, email, phone, address, ssn, date_of_birth, policy_number, coverage_amount, premium, company, account_number<br>
+                        <strong>Common fields:</strong> name, email, phone, address, ssn, date_of_birth, account_number, employee_id, salary, department, company, amount<br>
                         <strong>Note:</strong> If left empty, will extract: name, email, phone, address, date, company, amount
                     </div>
                 </div>

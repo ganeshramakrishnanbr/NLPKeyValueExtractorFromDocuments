@@ -10,7 +10,7 @@ from models import ExtractionResult, CustomerInfo, PolicyInfo, DynamicExtraction
 from document_processor import DocumentProcessor
 from simple_extractor import SimpleDynamicExtractor
 
-app = FastAPI(title="Life Insurance Document Processor", version="1.0.0")
+app = FastAPI(title="NLP Key Value Extractor From Documents", version="1.0.0")
 
 # Initialize templates
 templates = Jinja2Templates(directory="templates")
@@ -22,8 +22,8 @@ dynamic_extractor = SimpleDynamicExtractor()
 @app.post("/upload/", response_model=ExtractionResult)
 async def upload_document(file: UploadFile = File(...)):
     """
-    Upload and process life insurance documents (PDF, DOCX, DOC).
-    Extracts customer and policy information using basic pattern matching.
+    Upload and process documents (PDF, DOCX, DOC).
+    Extracts key-value information using NLP pattern matching.
     """
     start_time = time.time()
     
@@ -60,31 +60,31 @@ async def upload_document(file: UploadFile = File(...)):
             # Classify document type
             document_type = document_processor.classify_document_type(extracted_text)
             
-            # Extract customer information using simple patterns
-            customer_fields = ['name', 'ssn', 'date_of_birth', 'address', 'phone', 'email']
-            customer_data = dynamic_extractor.extract_custom_fields(extracted_text, customer_fields)
+            # Extract primary information using simple patterns
+            primary_fields = ['name', 'ssn', 'date_of_birth', 'address', 'phone', 'email']
+            primary_data = dynamic_extractor.extract_custom_fields(extracted_text, primary_fields)
             customer_info = CustomerInfo(
-                name=customer_data.get('name'),
-                ssn=customer_data.get('ssn'),
-                date_of_birth=customer_data.get('date_of_birth'),
-                address=customer_data.get('address'),
-                phone=customer_data.get('phone'),
-                email=customer_data.get('email')
+                name=primary_data.get('name'),
+                ssn=primary_data.get('ssn'),
+                date_of_birth=primary_data.get('date_of_birth'),
+                address=primary_data.get('address'),
+                phone=primary_data.get('phone'),
+                email=primary_data.get('email')
             )
             
-            # Extract policy information
-            policy_fields = ['policy_number', 'policy_type', 'coverage_amount', 'premium']
-            policy_data = dynamic_extractor.extract_custom_fields(extracted_text, policy_fields)
+            # Extract secondary information
+            secondary_fields = ['policy_number', 'account_number', 'amount', 'date']
+            secondary_data = dynamic_extractor.extract_custom_fields(extracted_text, secondary_fields)
             policy_info = PolicyInfo(
-                policy_number=policy_data.get('policy_number'),
-                policy_type=policy_data.get('policy_type'),
-                coverage_amount=policy_data.get('coverage_amount'),
-                premium=policy_data.get('premium')
+                policy_number=secondary_data.get('policy_number') or secondary_data.get('account_number'),
+                policy_type=document_type.replace('_', ' ').title(),
+                coverage_amount=secondary_data.get('amount'),
+                premium=None  # Not applicable for generic documents
             )
             
             # Calculate confidence score
-            all_fields = customer_fields + policy_fields
-            all_extracted_data = {**customer_data, **policy_data}
+            all_fields = primary_fields + secondary_fields
+            all_extracted_data = {**primary_data, **secondary_data}
             confidence_score = dynamic_extractor.calculate_confidence_score(all_extracted_data, all_fields)
             
             # Calculate processing time
@@ -215,7 +215,7 @@ async def health_check():
     """Health check endpoint to verify API status"""
     return {
         "status": "healthy",
-        "message": "Life Insurance Document Processor is running",
+        "message": "NLP Key Value Extractor From Documents is running",
         "timestamp": time.time()
     }
 
@@ -228,7 +228,7 @@ async def root(request: Request):
 async def api_info():
     """API information endpoint"""
     return {
-        "message": "Life Insurance Document Processor API",
+        "message": "NLP Key Value Extractor From Documents API",
         "version": "1.0.0",
         "endpoints": {
             "upload": "/upload/ (POST) - Upload and process documents with preset fields",
