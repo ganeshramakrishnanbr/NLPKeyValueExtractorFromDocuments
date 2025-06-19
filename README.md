@@ -27,34 +27,12 @@ python main_simple.py
 
 Access the web interface at `http://localhost:8000`
 
-## Git Automation
+## Documentation
 
-This repository includes automated git commit tools for efficient development workflow. The automation system is fully tested and working in Replit environment.
-
-### Available Commands
-
-```bash
-# Full auto-commit with custom message
-./autocommit.sh "Add new feature"
-
-# Auto-commit with timestamp
-./autocommit.sh
-
-# Quick commit (shorter script)
-./quick-commit.sh "Fix bug in extraction"
-
-# Git aliases (after setup)
-git ac "Your message"     # Auto-commit
-git qc "Your message"     # Quick commit with confirmation
-git acp                   # Auto-commit with timestamp
-```
-
-### Setup Git Automation
-```bash
-./setup-git-automation.sh
-```
-
-This creates git aliases and makes all scripts executable.
+All project documentation is organized in the `docs/` folder:
+- `docs/git-integration-fix.md` - Git integration troubleshooting
+- `docs/replit-git-guide.md` - Replit-specific git setup guide
+- `docs/sample_test.md` - Sample document for testing extraction
 
 ## API Usage
 
