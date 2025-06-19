@@ -264,6 +264,161 @@
             border-color: #667eea;
         }
 
+        .technique-checkbox {
+            display: flex;
+            align-items: flex-start;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .technique-checkbox:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .technique-checkbox input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .technique-checkbox .checkmark {
+            height: 18px;
+            width: 18px;
+            background-color: #fff;
+            border: 2px solid #ddd;
+            border-radius: 3px;
+            margin-right: 12px;
+            flex-shrink: 0;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .technique-checkbox input:checked ~ .checkmark {
+            background-color: #667eea;
+            border-color: #667eea;
+        }
+
+        .technique-checkbox .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+        }
+
+        .technique-checkbox input:checked ~ .checkmark:after {
+            display: block;
+        }
+
+        .technique-checkbox .checkmark:after {
+            left: 5px;
+            top: 2px;
+            width: 4px;
+            height: 8px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .technique-info {
+            flex: 1;
+        }
+
+        .technique-desc {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .multi-technique-results {
+            margin-top: 30px;
+        }
+
+        .technique-comparison {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .technique-result-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 5px solid #667eea;
+        }
+
+        .technique-name {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .technique-confidence {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .confidence-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .confidence-high {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .confidence-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .confidence-low {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .ranking-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .ranking-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .ranking-item:last-child {
+            border-bottom: none;
+        }
+
+        .rank-number {
+            background: #667eea;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
         #customFieldsSection h4 {
             color: #2c3e50;
             margin-bottom: 10px;
@@ -304,6 +459,7 @@
             <div class="mode-selector" style="margin-bottom: 20px; text-align: center;">
                 <button class="mode-btn active" id="presetMode" onclick="switchMode('preset')">Standard Fields</button>
                 <button class="mode-btn" id="customMode" onclick="switchMode('custom')">Custom Fields</button>
+                <button class="mode-btn" id="multiTechniqueMode" onclick="switchMode('multi-technique')">Multi-Technique Analysis</button>
             </div>
 
             <div class="upload-section" id="uploadSection">
@@ -323,6 +479,120 @@
                     <div style="margin-top: 10px; font-size: 0.9em; color: #666;">
                         <strong>Common fields:</strong> name, email, phone, address, ssn, date_of_birth, account_number, employee_id, salary, department, company, amount<br>
                         <strong>Note:</strong> If left empty, will extract: name, email, phone, address, date, company, amount
+                    </div>
+                </div>
+
+                <div id="multiTechniqueSection" style="display: none; margin-top: 20px;">
+                    <h4>Select Extraction Techniques to Compare</h4>
+                    <div style="margin-bottom: 15px; font-size: 0.9em; color: #666;">
+                        Choose multiple techniques to compare their effectiveness on your document:
+                    </div>
+                    
+                    <div class="technique-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px; margin-bottom: 15px;">
+                        <label class="technique-checkbox">
+                            <input type="checkbox" name="technique" value="regex_pattern_matching" checked>
+                            <span class="checkmark"></span>
+                            <div class="technique-info">
+                                <strong>Regex Pattern Matching</strong>
+                                <div class="technique-desc">Uses regular expressions to find structured patterns</div>
+                            </div>
+                        </label>
+                        
+                        <label class="technique-checkbox">
+                            <input type="checkbox" name="technique" value="fuzzy_string_matching" checked>
+                            <span class="checkmark"></span>
+                            <div class="technique-info">
+                                <strong>String Matching</strong>
+                                <div class="technique-desc">Matches keywords with substring detection</div>
+                            </div>
+                        </label>
+                        
+                        <label class="technique-checkbox">
+                            <input type="checkbox" name="technique" value="keyword_proximity_analysis" checked>
+                            <span class="checkmark"></span>
+                            <div class="technique-info">
+                                <strong>Keyword Proximity Analysis</strong>
+                                <div class="technique-desc">Finds values near relevant keywords by distance</div>
+                            </div>
+                        </label>
+                        
+                        <label class="technique-checkbox">
+                            <input type="checkbox" name="technique" value="statistical_frequency_analysis">
+                            <span class="checkmark"></span>
+                            <div class="technique-info">
+                                <strong>Statistical Frequency Analysis</strong>
+                                <div class="technique-desc">Analyzes patterns and selects most frequent matches</div>
+                            </div>
+                        </label>
+                        
+                        <label class="technique-checkbox">
+                            <input type="checkbox" name="technique" value="context_aware_extraction">
+                            <span class="checkmark"></span>
+                            <div class="technique-info">
+                                <strong>Context-Aware Extraction</strong>
+                                <div class="technique-desc">Uses semantic context for accuracy</div>
+                            </div>
+                        </label>
+                        
+                        <label class="technique-checkbox">
+                            <input type="checkbox" name="technique" value="template_based_extraction">
+                            <span class="checkmark"></span>
+                            <div class="technique-info">
+                                <strong>Template-Based Extraction</strong>
+                                <div class="technique-desc">Recognizes document structure patterns</div>
+                            </div>
+                        </label>
+                        
+                        <label class="technique-checkbox">
+                            <input type="checkbox" name="technique" value="position_based_extraction">
+                            <span class="checkmark"></span>
+                            <div class="technique-info">
+                                <strong>Position-Based Extraction</strong>
+                                <div class="technique-desc">Uses document layout and position patterns</div>
+                            </div>
+                        </label>
+                        
+                        <label class="technique-checkbox">
+                            <input type="checkbox" name="technique" value="pattern_ensemble_method">
+                            <span class="checkmark"></span>
+                            <div class="technique-info">
+                                <strong>Pattern Ensemble Method</strong>
+                                <div class="technique-desc">Combines multiple approaches with voting</div>
+                            </div>
+                        </label>
+                        
+                        <label class="technique-checkbox">
+                            <input type="checkbox" name="technique" value="confidence_weighted_extraction" checked>
+                            <span class="checkmark"></span>
+                            <div class="technique-info">
+                                <strong>Confidence-Weighted Extraction</strong>
+                                <div class="technique-desc">Weights results by confidence scores</div>
+                            </div>
+                        </label>
+                        
+                        <label class="technique-checkbox">
+                            <input type="checkbox" name="technique" value="semantic_similarity_matching">
+                            <span class="checkmark"></span>
+                            <div class="technique-info">
+                                <strong>Semantic Similarity Matching</strong>
+                                <div class="technique-desc">Uses word overlap analysis for matching</div>
+                            </div>
+                        </label>
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <button type="button" onclick="selectRecommendedTechniques()" style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-right: 10px;">Select Recommended</button>
+                        <button type="button" onclick="selectAllTechniques()" style="background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-right: 10px;">Select All</button>
+                        <button type="button" onclick="clearAllTechniques()" style="background: #6c757d; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Clear All</button>
+                    </div>
+                    
+                    <div>
+                        <h4>Specify Fields to Extract (Optional)</h4>
+                        <textarea id="multiTechniqueFields" placeholder="Enter field names separated by commas (e.g., name, email, phone, address, ssn, employee_id, salary, department, company) or leave empty for default extraction" 
+                                 style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-family: inherit; font-size: 14px; height: 60px; resize: vertical;"></textarea>
+                        <div style="margin-top: 8px; font-size: 0.9em; color: #666;">
+                            <strong>Default extraction:</strong> name, email, phone, address, date, company, amount
+                        </div>
                     </div>
                 </div>
                 
@@ -390,7 +660,7 @@
         const loading = document.getElementById('loading');
         const results = document.getElementById('results');
         const error = document.getElementById('error');
-        let currentMode = 'preset'; // 'preset' or 'custom'
+        let currentMode = 'preset'; // 'preset', 'custom', or 'multi-technique'
 
         // Drag and drop functionality
         uploadSection.addEventListener('dragover', (e) => {

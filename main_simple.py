@@ -22,7 +22,7 @@ from document_processor import DocumentProcessor
 from simple_extractor import SimpleDynamicExtractor
 from template_classifier import AdvancedTemplateClassifier
 from confidence_scorer import EnhancedConfidenceScorer
-from multi_technique_extractor import MultiTechniqueExtractor
+from multi_technique_extractor_simple import MultiTechniqueExtractor
 
 app = FastAPI(
     title="NLP Key Value Extractor From Documents", 
