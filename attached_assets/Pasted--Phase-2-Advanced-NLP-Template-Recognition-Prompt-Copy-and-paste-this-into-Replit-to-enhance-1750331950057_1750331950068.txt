@@ -1,0 +1,626 @@
+# Phase 2 Advanced NLP & Template Recognition Prompt
+
+**Copy and paste this into Replit to enhance your existing Phase 1 application:**
+
+---
+
+```
+Enhance the existing NLP document processing application with advanced NLP capabilities and template recognition for 3,700+ product varieties.
+
+## PHASE 2 ENHANCEMENTS:
+
+### NEW REQUIREMENTS:
+- Template classification for 3,700+ NLP product varieties
+- Advanced entity extraction with higher accuracy
+- State-specific regulation identification for all 50 US states
+- Enhanced confidence scoring with multiple algorithms
+- Document similarity matching and template learning
+- Multi-model ensemble approach for extraction
+
+### ADDITIONAL TECHNOLOGY STACK:
+```python
+sentence-transformers==2.2.2
+scikit-learn==1.3.0
+numpy==1.25.2
+pickle==4.0
+joblib==1.3.2
+fuzzywuzzy==0.18.0
+python-Levenshtein==0.20.9
+```
+
+## NEW FILES TO ADD:
+
+### 1. Enhanced Template Classifier (template_classifier.py):
+```python
+import numpy as np
+from sentence_transformers import SentenceTransformer
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.cluster import KMeans
+import pickle
+import json
+from typing import Dict, List, Tuple
+from fuzzywuzzy import fuzz
+
+class AdvancedTemplateClassifier:
+    
+    def __init__(self):
+        # Load sentence transformer for document embeddings
+        self.sentence_model = SentenceTransformer('all-MiniLM-L6-v2')
+        self.template_embeddings = {}
+        self.template_keywords = {}
+        self.state_regulations = {}
+        self.load_template_database()
+    
+    def load_template_database(self):
+        """Load or initialize template database for 3,700+ varieties"""
+        
+        # NLP product categories
+        self.product_categories = {
+            "document_type_1": ["type 1", "category a", "variant 1"],
+            "document_type_2": ["type 2", "category b", "variant 2"], 
+            "document_type_3": ["type 3", "category c", "variant 3"],
+            "document_type_4": ["type 4", "category d", "variant 4"],
+            "document_type_5": ["type 5", "category e", "variant 5"],
+            "document_type_6": ["type 6", "category f", "variant 6"],
+            "document_type_7": ["type 7", "category g", "variant 7"],
+            "document_type_8": ["type 8", "category h", "variant 8"],
+            "document_type_9": ["type 9", "category i", "variant 9"],
+            "document_type_10": ["type 10", "category j", "variant 10"]
+        }
+        
+        # State-specific patterns
+        self.state_patterns = {
+            "california": ["CA", "California", "Golden State"],
+            "texas": ["TX", "Texas", "Lone Star"],
+            "florida": ["FL", "Florida", "Sunshine State"],
+            "new_york": ["NY", "New York", "Empire State"],
+            # Add patterns for all 50 states
+        }
+    
+    def classify_product_variety(self, text: str) -> Dict:
+        """Classify into one of 3,700+ product varieties"""
+        
+        # Step 1: Primary category classification
+        primary_category = self._classify_primary_category(text)
+        
+        # Step 2: Sub-category classification
+        sub_category = self._classify_sub_category(text, primary_category)
+        
+        # Step 3: State-specific identification
+        state_info = self._identify_state_regulations(text)
+        
+        # Step 4: Company/carrier identification
+        carrier_info = self._identify_carrier(text)
+        
+        # Step 5: Calculate template similarity score
+        similarity_score = self._calculate_template_similarity(text)
+        
+        return {
+            "primary_category": primary_category,
+            "sub_category": sub_category,
+            "state_regulations": state_info,
+            "carrier": carrier_info,
+            "template_match_score": similarity_score,
+            "confidence": self._calculate_classification_confidence(text)
+        }
+    
+    def _classify_primary_category(self, text: str) -> str:
+        """Classify into main document categories"""
+        text_lower = text.lower()
+        
+        category_scores = {}
+        for category, keywords in self.product_categories.items():
+            score = sum(fuzz.partial_ratio(keyword, text_lower) for keyword in keywords)
+            category_scores[category] = score / len(keywords)
+        
+        return max(category_scores, key=category_scores.get)
+    
+    def _classify_sub_category(self, text: str, primary_category: str) -> str:
+        """Detailed sub-category classification"""
+        
+        # Define sub-categories for each primary category
+        sub_categories = {
+            "document_type_1": {
+                "subtype_1a": ["variant 1a", "option 1a"],
+                "subtype_1b": ["variant 1b", "option 1b"],
+                "subtype_1c": ["variant 1c", "option 1c"],
+                "subtype_1d": ["variant 1d", "option 1d"]
+            },
+            "document_type_2": {
+                "subtype_2a": ["variant 2a", "option 2a"],
+                "subtype_2b": ["variant 2b", "option 2b"],
+                "subtype_2c": ["variant 2c", "option 2c"],
+                "subtype_2d": ["variant 2d", "option 2d"]
+            }
+            # Add sub-categories for all primary categories
+        }
+        
+        if primary_category in sub_categories:
+            text_lower = text.lower()
+            sub_scores = {}
+            
+            for sub_cat, keywords in sub_categories[primary_category].items():
+                score = sum(fuzz.partial_ratio(keyword, text_lower) for keyword in keywords)
+                sub_scores[sub_cat] = score / len(keywords)
+            
+            return max(sub_scores, key=sub_scores.get)
+        
+        return "standard"
+    
+    def _identify_state_regulations(self, text: str) -> Dict:
+        """Identify state-specific regulations and requirements"""
+        
+        identified_states = []
+        state_requirements = {}
+        
+        text_upper = text.upper()
+        
+        # Check for state mentions
+        for state, patterns in self.state_patterns.items():
+            for pattern in patterns:
+                if pattern.upper() in text_upper:
+                    identified_states.append(state)
+                    break
+        
+        # Get state-specific requirements
+        for state in identified_states:
+            state_requirements[state] = self._get_state_requirements(state)
+        
+        return {
+            "identified_states": identified_states,
+            "requirements": state_requirements,
+            "compliance_needed": len(state_requirements) > 0
+        }
+    
+    def _get_state_requirements(self, state: str) -> Dict:
+        """Get specific requirements for each state"""
+        
+        # State-specific requirements database
+        state_reqs = {
+            "california": {
+                "required_disclosures": ["Disclosure A", "Notice B"],
+                "mandatory_components": ["Component X option"],
+                "filing_requirements": ["Form filing with authority"],
+                "regulatory_implications": ["State regulation treatment"]
+            },
+            "texas": {
+                "required_disclosures": ["Notice C", "Summary D"],
+                "mandatory_components": ["Component Y"],
+                "filing_requirements": ["Authority form approval"],
+                "regulatory_implications": ["No state requirement"]
+            }
+            # Add requirements for all 50 states
+        }
+        
+        return state_reqs.get(state, {})
+    
+    def _identify_carrier(self, text: str) -> Dict:
+        """Identify company/organization"""
+        
+        major_organizations = [
+            "Company A", "Company B", "Organization C", "Entity D",
+            "Corporation E", "Group F", "Enterprise G", "Firm H", "Business I",
+            "Institution J", "Agency K", "Bureau L", "Department M"
+        ]
+        
+        identified_organizations = []
+        text_lower = text.lower()
+        
+        for organization in major_organizations:
+            if organization.lower() in text_lower:
+                identified_organizations.append(organization)
+        
+        return {
+            "organizations": identified_organizations,
+            "primary_organization": identified_organizations[0] if identified_organizations else None
+        }
+    
+    def learn_new_template(self, text: str, template_name: str):
+        """Learn and store new template patterns"""
+        
+        # Generate embedding for new template
+        embedding = self.sentence_model.encode([text])
+        
+        # Store template
+        self.template_embeddings[template_name] = embedding
+        
+        # Extract keywords
+        keywords = self._extract_template_keywords(text)
+        self.template_keywords[template_name] = keywords
+        
+        # Save to file
+        self._save_template_database()
+    
+    def _extract_template_keywords(self, text: str) -> List[str]:
+        """Extract key phrases that identify this template"""
+        
+        # Simple keyword extraction (can be enhanced with TF-IDF)
+        import re
+        words = re.findall(r'\b[A-Za-z]{3,}\b', text.lower())
+        
+        # Filter for document-specific terms
+        document_terms = [word for word in words if 
+                         any(term in word for term in 
+                             ['document', 'content', 'section', 'field', 'data'])]
+        
+        return list(set(document_terms))[:20]  # Top 20 keywords
+
+### Enhanced Confidence Scoring (confidence_scorer.py):
+```python
+from typing import Dict, List
+import numpy as np
+
+class EnhancedConfidenceScorer:
+    
+    def __init__(self):
+        self.field_weights = {
+            # Customer information weights
+            "name": 0.15,
+            "ssn": 0.20,
+            "date_of_birth": 0.15,
+            "address": 0.10,
+            "phone": 0.05,
+            "email": 0.05,
+            
+            # Document information weights  
+            "document_number": 0.20,
+            "document_type": 0.05,
+            "content_amount": 0.03,
+            "processing_fee": 0.02
+        }
+    
+    def calculate_ensemble_confidence(self, extracted_data: Dict, 
+                                    template_match: Dict, 
+                                    processing_metadata: Dict) -> Dict:
+        """Calculate confidence using multiple algorithms"""
+        
+        # Algorithm 1: Field completion confidence
+        completion_confidence = self._calculate_completion_confidence(extracted_data)
+        
+        # Algorithm 2: Template matching confidence
+        template_confidence = template_match.get("template_match_score", 0.0)
+        
+        # Algorithm 3: Pattern validation confidence
+        validation_confidence = self._calculate_validation_confidence(extracted_data)
+        
+        # Algorithm 4: State compliance confidence
+        compliance_confidence = self._calculate_compliance_confidence(
+            extracted_data, template_match.get("state_regulations", {})
+        )
+        
+        # Weighted ensemble
+        overall_confidence = (
+            0.30 * completion_confidence +
+            0.25 * template_confidence +
+            0.25 * validation_confidence +
+            0.20 * compliance_confidence
+        )
+        
+        return {
+            "overall_confidence": round(overall_confidence, 3),
+            "completion_confidence": round(completion_confidence, 3),
+            "template_confidence": round(template_confidence, 3),
+            "validation_confidence": round(validation_confidence, 3),
+            "compliance_confidence": round(compliance_confidence, 3),
+            "manual_review_required": overall_confidence < 0.75,
+            "quality_score": self._calculate_quality_score(extracted_data)
+        }
+    
+    def _calculate_completion_confidence(self, extracted_data: Dict) -> float:
+        """Calculate confidence based on field completion"""
+        
+        total_weight = 0
+        achieved_weight = 0
+        
+        # Check customer info
+        customer_info = extracted_data.get("customer_info", {})
+        for field, weight in self.field_weights.items():
+            if field in customer_info:
+                total_weight += weight
+                if customer_info[field] and str(customer_info[field]).strip():
+                    achieved_weight += weight
+        
+        # Check document info
+        document_info = extracted_data.get("document_info", {})
+        for field, weight in self.field_weights.items():
+            if field in document_info:
+                total_weight += weight
+                if document_info[field] and str(document_info[field]).strip():
+                    achieved_weight += weight
+        
+        return achieved_weight / total_weight if total_weight > 0 else 0.0
+    
+    def _calculate_validation_confidence(self, extracted_data: Dict) -> float:
+        """Validate extracted data against known patterns"""
+        
+        validation_scores = []
+        
+        # Validate SSN format
+        customer_info = extracted_data.get("customer_info", {})
+        if customer_info.get("ssn"):
+            ssn_valid = self._validate_ssn(customer_info["ssn"])
+            validation_scores.append(1.0 if ssn_valid else 0.0)
+        
+        # Validate phone format
+        if customer_info.get("phone"):
+            phone_valid = self._validate_phone(customer_info["phone"])
+            validation_scores.append(1.0 if phone_valid else 0.0)
+        
+        # Validate email format
+        if customer_info.get("email"):
+            email_valid = self._validate_email(customer_info["email"])
+            validation_scores.append(1.0 if email_valid else 0.0)
+        
+        # Validate document number format
+        document_info = extracted_data.get("document_info", {})
+        if document_info.get("document_number"):
+            document_valid = self._validate_document_number(document_info["document_number"])
+            validation_scores.append(1.0 if document_valid else 0.0)
+        
+        return np.mean(validation_scores) if validation_scores else 0.5
+    
+    def _validate_ssn(self, ssn: str) -> bool:
+        import re
+        pattern = r'^\d{3}-\d{2}-\d{4}$'
+        return bool(re.match(pattern, ssn))
+    
+    def _validate_phone(self, phone: str) -> bool:
+        import re
+        pattern = r'^\d{3}[-.]?\d{3}[-.]?\d{4}$'
+        return bool(re.match(pattern, phone))
+    
+    def _validate_email(self, email: str) -> bool:
+        import re
+        pattern = r'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$'
+        return bool(re.match(pattern, email))
+    
+    def _validate_document_number(self, document_num: str) -> bool:
+        # Multiple valid formats for document numbers
+        import re
+        patterns = [
+            r'^[A-Z]{2,3}\d{6,10}
+
+## ENHANCED API ENDPOINTS:
+
+### Update main.py to include new endpoints:
+```python
+@app.post("/upload/advanced/")
+async def upload_document_advanced(file: UploadFile = File(...)):
+    """Enhanced processing with template recognition"""
+    # Process with advanced NLP and template classification
+    # Return detailed classification and confidence metrics
+
+@app.get("/templates/")
+async def list_available_templates():
+    """List all available template categories"""
+    # Return template categories and sub-categories
+
+@app.post("/templates/learn/")
+async def learn_new_template(template_name: str, sample_text: str):
+    """Teach system to recognize new template"""
+    # Add new template to classification system
+
+@app.get("/state-requirements/{state}")
+async def get_state_requirements(state: str):
+    """Get document requirements for specific state"""
+    # Return state-specific regulations and requirements
+```
+
+## INTEGRATION INSTRUCTIONS:
+
+1. **Install new dependencies** in Replit:
+   ```bash
+   pip install sentence-transformers scikit-learn fuzzywuzzy python-Levenshtein
+   ```
+
+2. **Update existing nlp_extractor.py** to use new confidence scoring
+
+3. **Integrate template classifier** into document processing pipeline
+
+4. **Test with various insurance document types** to validate template recognition
+
+5. **Add state-specific extraction patterns** based on identified states
+
+## EXPECTED IMPROVEMENTS:
+
+- **Template Recognition**: 85%+ accuracy for document classification
+- **State Compliance**: Automatic identification of state-specific requirements
+- **Enhanced Confidence**: Multi-algorithm scoring with validation
+- **Carrier Detection**: Identify insurance company from documents
+- **Sub-category Classification**: Detailed product variety identification
+
+## TESTING SCENARIOS:
+
+1. Upload different types of NLP documents
+2. Test documents from different states
+3. Verify template learning with new document types
+4. Validate enhanced confidence scoring accuracy
+5. Check state-specific requirement identification
+
+Build this enhancement to work seamlessly with your existing Phase 1 application while adding sophisticated template recognition and state compliance capabilities.
+```,  # ABC1234567
+            r'^DOC-\d{6,8}
+
+## ENHANCED API ENDPOINTS:
+
+### Update main.py to include new endpoints:
+```python
+@app.post("/upload/advanced/")
+async def upload_document_advanced(file: UploadFile = File(...)):
+    """Enhanced processing with template recognition"""
+    # Process with advanced NLP and template classification
+    # Return detailed classification and confidence metrics
+
+@app.get("/templates/")
+async def list_available_templates():
+    """List all available template categories"""
+    # Return template categories and sub-categories
+
+@app.post("/templates/learn/")
+async def learn_new_template(template_name: str, sample_text: str):
+    """Teach system to recognize new template"""
+    # Add new template to classification system
+
+@app.get("/state-requirements/{state}")
+async def get_state_requirements(state: str):
+    """Get insurance requirements for specific state"""
+    # Return state-specific regulations and requirements
+```
+
+## INTEGRATION INSTRUCTIONS:
+
+1. **Install new dependencies** in Replit:
+   ```bash
+   pip install sentence-transformers scikit-learn fuzzywuzzy python-Levenshtein
+   ```
+
+2. **Update existing nlp_extractor.py** to use new confidence scoring
+
+3. **Integrate template classifier** into document processing pipeline
+
+4. **Test with various insurance document types** to validate template recognition
+
+5. **Add state-specific extraction patterns** based on identified states
+
+## EXPECTED IMPROVEMENTS:
+
+- **Template Recognition**: 85%+ accuracy for document classification
+- **State Compliance**: Automatic identification of state-specific requirements
+- **Enhanced Confidence**: Multi-algorithm scoring with validation
+- **Carrier Detection**: Identify insurance company from documents
+- **Sub-category Classification**: Detailed product variety identification
+
+## TESTING SCENARIOS:
+
+1. Upload different types of life insurance policies
+2. Test documents from different states
+3. Verify template learning with new document types
+4. Validate enhanced confidence scoring accuracy
+5. Check state-specific requirement identification
+
+Build this enhancement to work seamlessly with your existing Phase 1 application while adding sophisticated template recognition and state compliance capabilities.
+```,         # DOC-123456
+            r'^\d{8,12}
+
+## ENHANCED API ENDPOINTS:
+
+### Update main.py to include new endpoints:
+```python
+@app.post("/upload/advanced/")
+async def upload_document_advanced(file: UploadFile = File(...)):
+    """Enhanced processing with template recognition"""
+    # Process with advanced NLP and template classification
+    # Return detailed classification and confidence metrics
+
+@app.get("/templates/")
+async def list_available_templates():
+    """List all available template categories"""
+    # Return template categories and sub-categories
+
+@app.post("/templates/learn/")
+async def learn_new_template(template_name: str, sample_text: str):
+    """Teach system to recognize new template"""
+    # Add new template to classification system
+
+@app.get("/state-requirements/{state}")
+async def get_state_requirements(state: str):
+    """Get insurance requirements for specific state"""
+    # Return state-specific regulations and requirements
+```
+
+## INTEGRATION INSTRUCTIONS:
+
+1. **Install new dependencies** in Replit:
+   ```bash
+   pip install sentence-transformers scikit-learn fuzzywuzzy python-Levenshtein
+   ```
+
+2. **Update existing nlp_extractor.py** to use new confidence scoring
+
+3. **Integrate template classifier** into document processing pipeline
+
+4. **Test with various insurance document types** to validate template recognition
+
+5. **Add state-specific extraction patterns** based on identified states
+
+## EXPECTED IMPROVEMENTS:
+
+- **Template Recognition**: 85%+ accuracy for document classification
+- **State Compliance**: Automatic identification of state-specific requirements
+- **Enhanced Confidence**: Multi-algorithm scoring with validation
+- **Carrier Detection**: Identify insurance company from documents
+- **Sub-category Classification**: Detailed product variety identification
+
+## TESTING SCENARIOS:
+
+1. Upload different types of life insurance policies
+2. Test documents from different states
+3. Verify template learning with new document types
+4. Validate enhanced confidence scoring accuracy
+5. Check state-specific requirement identification
+
+Build this enhancement to work seamlessly with your existing Phase 1 application while adding sophisticated template recognition and state compliance capabilities.
+```             # 12345678
+        ]
+        
+        return any(re.match(pattern, document_num) for pattern in patterns)
+
+## ENHANCED API ENDPOINTS:
+
+### Update main.py to include new endpoints:
+```python
+@app.post("/upload/advanced/")
+async def upload_document_advanced(file: UploadFile = File(...)):
+    """Enhanced processing with template recognition"""
+    # Process with advanced NLP and template classification
+    # Return detailed classification and confidence metrics
+
+@app.get("/templates/")
+async def list_available_templates():
+    """List all available template categories"""
+    # Return template categories and sub-categories
+
+@app.post("/templates/learn/")
+async def learn_new_template(template_name: str, sample_text: str):
+    """Teach system to recognize new template"""
+    # Add new template to classification system
+
+@app.get("/state-requirements/{state}")
+async def get_state_requirements(state: str):
+    """Get insurance requirements for specific state"""
+    # Return state-specific regulations and requirements
+```
+
+## INTEGRATION INSTRUCTIONS:
+
+1. **Install new dependencies** in Replit:
+   ```bash
+   pip install sentence-transformers scikit-learn fuzzywuzzy python-Levenshtein
+   ```
+
+2. **Update existing nlp_extractor.py** to use new confidence scoring
+
+3. **Integrate template classifier** into document processing pipeline
+
+4. **Test with various insurance document types** to validate template recognition
+
+5. **Add state-specific extraction patterns** based on identified states
+
+## EXPECTED IMPROVEMENTS:
+
+- **Template Recognition**: 85%+ accuracy for document classification
+- **State Compliance**: Automatic identification of state-specific requirements
+- **Enhanced Confidence**: Multi-algorithm scoring with validation
+- **Carrier Detection**: Identify insurance company from documents
+- **Sub-category Classification**: Detailed product variety identification
+
+## TESTING SCENARIOS:
+
+1. Upload different types of life insurance policies
+2. Test documents from different states
+3. Verify template learning with new document types
+4. Validate enhanced confidence scoring accuracy
+5. Check state-specific requirement identification
+
+Build this enhancement to work seamlessly with your existing Phase 1 application while adding sophisticated template recognition and state compliance capabilities.
+```
