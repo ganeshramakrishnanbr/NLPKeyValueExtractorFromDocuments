@@ -1115,11 +1115,11 @@
             const customerInfo = document.getElementById('customerInfo');
             customerInfo.innerHTML = '';
             
-            const extractedFields = data.extracted_fields;
+            const fieldsData = data.extracted_fields;
             const requestedFields = data.requested_fields;
             
             requestedFields.forEach(field => {
-                const value = extractedFields[field] || 'Not found';
+                const value = fieldsData[field] || 'Not found';
                 const displayName = field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
                 
                 customerInfo.innerHTML += `
@@ -1147,10 +1147,10 @@
             
             // Calculate extraction statistics
             const totalFields = data.requested_fields.length;
-            const extractedFields = Object.keys(data.extracted_fields).filter(key => 
+            const foundFields = Object.keys(data.extracted_fields).filter(key => 
                 data.extracted_fields[key] && data.extracted_fields[key].trim() !== ''
             ).length;
-            const extractionRate = Math.round((extractedFields / totalFields) * 100);
+            const extractionRate = Math.round((foundFields / totalFields) * 100);
             
             // Determine confidence factors
             let confidenceFactors = [];
@@ -1241,8 +1241,8 @@
                         <h4 style="color: #007bff; margin: 0 0 10px 0; font-size: 1em;">Field Extraction Analysis</h4>
                         <div style="background: #e3f2fd; padding: 12px; border-radius: 6px;">
                             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; font-size: 0.9em;">
-                                <div><strong>Fields Found:</strong> ${extractedFields}</div>
-                                <div><strong>Fields Missing:</strong> ${totalFields - extractedFields}</div>
+                                <div><strong>Fields Found:</strong> ${foundFields}</div>
+                                <div><strong>Fields Missing:</strong> ${totalFields - foundFields}</div>
                                 <div><strong>Success Rate:</strong> ${extractionRate}%</div>
                                 <div><strong>Text Length:</strong> ${data.raw_text_preview.length + 200}+ chars</div>
                             </div>
