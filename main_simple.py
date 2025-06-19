@@ -130,11 +130,13 @@ async def extract_custom_fields(file: UploadFile = File(...), fields: str = ""):
     
     # Parse the fields parameter
     if not fields.strip():
-        raise HTTPException(status_code=400, detail="No fields specified. Please provide comma-separated field names.")
-    
-    field_list = [field.strip() for field in fields.split(',') if field.strip()]
-    if not field_list:
-        raise HTTPException(status_code=400, detail="No valid fields provided.")
+        # If no fields specified, use a default set of common fields
+        field_list = ['name', 'email', 'phone', 'address', 'date', 'company', 'amount']
+    else:
+        field_list = [field.strip() for field in fields.split(',') if field.strip()]
+        if not field_list:
+            # Fallback to default fields if parsing fails
+            field_list = ['name', 'email', 'phone', 'address', 'date', 'company', 'amount']
     
     try:
         # Validate file type

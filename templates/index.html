@@ -317,10 +317,11 @@
                 
                 <div id="customFieldsSection" style="display: none; margin-top: 20px;">
                     <h4>Specify Fields to Extract</h4>
-                    <textarea id="customFields" placeholder="Enter field names separated by commas (e.g., name, email, phone, address, policy_number, date_of_birth, company_name)" 
+                    <textarea id="customFields" placeholder="Enter field names separated by commas (e.g., name, email, phone, address, policy_number, date_of_birth, company_name) or leave empty for default extraction" 
                              style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-family: inherit; font-size: 14px; height: 80px; resize: vertical;"></textarea>
                     <div style="margin-top: 10px; font-size: 0.9em; color: #666;">
-                        <strong>Common fields:</strong> name, email, phone, address, ssn, date_of_birth, policy_number, coverage_amount, premium, company, account_number
+                        <strong>Common fields:</strong> name, email, phone, address, ssn, date_of_birth, policy_number, coverage_amount, premium, company, account_number<br>
+                        <strong>Note:</strong> If left empty, will extract: name, email, phone, address, date, company, amount
                     </div>
                 </div>
                 
@@ -470,12 +471,8 @@
                     const customFieldsInput = document.getElementById('customFields');
                     const fields = customFieldsInput.value.trim();
                     
-                    if (!fields) {
-                        throw new Error('Please specify the fields you want to extract');
-                    }
-                    
                     endpoint = '/extract-custom/';
-                    formData.append('fields', fields);
+                    formData.append('fields', fields); // Can be empty for default fields
                 }
 
                 const response = await fetch(endpoint, {
