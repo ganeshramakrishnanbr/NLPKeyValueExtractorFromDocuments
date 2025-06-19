@@ -1154,13 +1154,13 @@
             
             // Determine confidence factors
             let confidenceFactors = [];
-            const confidence = Math.round(data.confidence_score * 100);
+            const confidenceLevel = Math.round(data.confidence_score * 100);
             
-            if (confidence >= 70) {
+            if (confidenceLevel >= 70) {
                 confidenceFactors.push("Strong pattern recognition");
                 confidenceFactors.push("Multiple field validation matches");
                 confidenceFactors.push("High text structure clarity");
-            } else if (confidence >= 40) {
+            } else if (confidenceLevel >= 40) {
                 confidenceFactors.push("Moderate pattern recognition");
                 confidenceFactors.push("Partial field validation");
                 confidenceFactors.push("Some text ambiguity present");
@@ -1204,7 +1204,7 @@
                 <h3>Solution Rationale & Analysis</h3>
                 <div class="rationale-content">
                     <div class="rationale-section">
-                        <h4 style="color: #007bff; margin: 0 0 10px 0; font-size: 1em;">Confidence Score Calculation (${confidence}%)</h4>
+                        <h4 style="color: #007bff; margin: 0 0 10px 0; font-size: 1em;">Confidence Score Calculation (${confidenceLevel}%)</h4>
                         <div class="rationale-list">
                             ${confidenceFactors.map(factor => `
                                 <div style="display: flex; align-items: center; margin-bottom: 5px;">
@@ -1251,10 +1251,10 @@
                     
                     <div class="rationale-section" style="margin-top: 20px;">
                         <h4 style="color: #007bff; margin: 0 0 10px 0; font-size: 1em;">Recommendations</h4>
-                        <div style="background: ${confidence >= 70 ? '#d4edda' : confidence >= 40 ? '#fff3cd' : '#f8d7da'}; padding: 12px; border-radius: 6px; border-left: 4px solid ${confidence >= 70 ? '#28a745' : confidence >= 40 ? '#ffc107' : '#dc3545'};">
-                            ${confidence >= 70 ? 
+                        <div style="background: ${confidenceLevel >= 70 ? '#d4edda' : confidenceLevel >= 40 ? '#fff3cd' : '#f8d7da'}; padding: 12px; border-radius: 6px; border-left: 4px solid ${confidenceLevel >= 70 ? '#28a745' : confidenceLevel >= 40 ? '#ffc107' : '#dc3545'};">
+                            ${confidenceLevel >= 70 ? 
                                 '<p style="margin: 0; font-size: 0.9em;"><strong>High Confidence:</strong> Results are reliable for most use cases. Manual verification recommended for critical applications.</p>' :
-                                confidence >= 40 ?
+                                confidenceLevel >= 40 ?
                                 '<p style="margin: 0; font-size: 0.9em;"><strong>Moderate Confidence:</strong> Results require validation. Consider using multi-technique analysis for better accuracy.</p>' :
                                 '<p style="margin: 0; font-size: 0.9em;"><strong>Low Confidence:</strong> Results need manual review. Document may require preprocessing or different extraction approach.</p>'
                             }
