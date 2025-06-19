@@ -9,6 +9,15 @@ class DocumentExtractorDashboard {
             totalFields: 0
         };
         
+        // Bind methods to preserve 'this' context
+        this.displayResults = this.displayResults.bind(this);
+        this.displayCustomResults = this.displayCustomResults.bind(this);
+        this.displayStandardResults = this.displayStandardResults.bind(this);
+        this.displayMultiTechniqueResults = this.displayMultiTechniqueResults.bind(this);
+        this.processDocument = this.processDocument.bind(this);
+        this.handleFileSelect = this.handleFileSelect.bind(this);
+        this.switchMode = this.switchMode.bind(this);
+        
         this.init();
     }
 
@@ -226,17 +235,30 @@ class DocumentExtractorDashboard {
     }
 
     displayResults(data) {
-        const resultsContainer = document.getElementById('results');
-        resultsContainer.innerHTML = '';
-        
-        if (this.currentMode === 'custom') {
-            this.displayCustomResults(data, resultsContainer);
-        } else {
-            this.displayStandardResults(data, resultsContainer);
+        try {
+            const resultsContainer = document.getElementById('results');
+            if (!resultsContainer) {
+                console.error('Results container not found');
+                return;
+            }
+            
+            resultsContainer.innerHTML = '';
+            
+            console.log('Current mode:', this.currentMode);
+            console.log('Data received:', data);
+            
+            if (this.currentMode === 'custom') {
+                this.displayCustomResults(data, resultsContainer);
+            } else {
+                this.displayStandardResults(data, resultsContainer);
+            }
+            
+            resultsContainer.style.display = 'block';
+            resultsContainer.classList.add('fade-in');
+        } catch (error) {
+            console.error('Error in displayResults:', error);
+            this.showError('Error displaying results: ' + error.message);
         }
-        
-        resultsContainer.style.display = 'block';
-        resultsContainer.classList.add('fade-in');
     }
 
     displayStandardResults(data, container) {
@@ -668,5 +690,10 @@ async function checkHealth() {
 
 // Initialize dashboard when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
-    window.dashboard = new DocumentExtractorDashboard();
+    try {
+        window.dashboard = new DocumentExtractorDashboard();
+        console.log('Dashboard initialized successfully');
+    } catch (error) {
+        console.error('Dashboard initialization failed:', error);
+    }
 });
