@@ -171,6 +171,11 @@ async def health_check():
         "timestamp": time.time()
     }
 
+@app.get("/test")
+async def test_endpoint():
+    """Simple test endpoint for connectivity verification"""
+    return {"test": "success", "cors": "enabled"}
+
 @app.post("/upload/", response_model=ExtractionResult)
 async def upload_document(file: UploadFile = File(...)):
     """Upload and process documents with standard field extraction"""

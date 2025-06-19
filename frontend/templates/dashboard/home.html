@@ -424,6 +424,20 @@
         async function processDocuments() {
             if (selectedFiles.length === 0) return;
 
+            // Test API connectivity first
+            try {
+                console.log('Testing API connectivity...');
+                const healthResponse = await fetch('http://localhost:8000/health');
+                if (!healthResponse.ok) {
+                    throw new Error(`Backend API not responding (Status: ${healthResponse.status})`);
+                }
+                console.log('API connectivity confirmed');
+            } catch (error) {
+                console.error('API connectivity failed:', error);
+                showError(`Cannot connect to backend API. Please ensure the server is running on port 8000.`);
+                return;
+            }
+
             const mode = document.querySelector('input[name="processing-mode"]:checked').value;
             
             try {
@@ -458,6 +472,7 @@
                         break;
                 }
             } catch (error) {
+                console.error('Processing error details:', error);
                 showError('Processing failed: ' + error.message);
             }
         }
@@ -468,19 +483,30 @@
             
             for (let file of selectedFiles) {
                 try {
+                    console.log(`Processing file: ${file.name}, type: ${file.type}, size: ${file.size}`);
+                    
                     const formData = new FormData();
                     formData.append('file', file);
 
+                    console.log('Sending request to:', 'http://localhost:8000/upload/');
+                    
                     const response = await fetch('http://localhost:8000/upload/', {
                         method: 'POST',
-                        body: formData
+                        body: formData,
+                        mode: 'cors'
                     });
 
+                    console.log('Response status:', response.status);
+                    console.log('Response headers:', response.headers);
+
                     if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
+                        const errorText = await response.text();
+                        console.error('Error response:', errorText);
+                        throw new Error(`HTTP ${response.status}: ${errorText}`);
                     }
 
                     const result = await response.json();
+                    console.log('Processing result:', result);
                     result.filename = file.name;
                     result.processing_mode = 'Standard';
                     results.push(result);
