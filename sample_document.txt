@@ -1,0 +1,12 @@
+Name: John Smith
+Date of Birth: 01/15/1980
+SSN: 123-45-6789
+Phone: (555) 123-4567
+Email: john.smith@example.com
+Address: 123 Main Street, Anytown, CA 12345
+
+Policy Number: POL-12345678
+Policy Type: Auto Insurance
+Coverage Amount: $50,000
+Premium: $1,200/year
+Effective Date: 2022-01-01

@@ -1,0 +1,23 @@
+# Core Framework
+Django==4.2.7
+djangorestframework==3.14.0
+celery==5.3.4
+redis==5.0.1
+
+# LayoutLM and AI
+transformers==4.35.0
+torch==2.1.0
+datasets==2.14.6
+
+# Document Processing
+Pillow==10.1.0
+pdf2image==1.16.3
+pytesseract==0.3.10
+opencv-python==4.8.1.78
+easyocr==1.7.0
+layoutparser==0.3.4
+
+# Data Processing
+numpy==1.25.2
+pandas==2.1.3
+scikit-learn==1.3.0

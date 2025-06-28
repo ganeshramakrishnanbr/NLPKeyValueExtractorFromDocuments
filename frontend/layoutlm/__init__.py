@@ -1,0 +1,1 @@
+# LayoutLM Django app initialization

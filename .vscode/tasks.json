@@ -1,0 +1,99 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Launch NLP Key-Value Extractor",
+      "type": "shell",
+      "command": "${workspaceFolder}/start_all.bat",
+      "windows": {
+        "command": "${workspaceFolder}\\start_all.bat"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "clear": true
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Launch Backend Only",
+      "type": "shell",
+      "command": "${workspaceFolder}/start_backend.bat",
+      "windows": {
+        "command": "${workspaceFolder}\\start_backend.bat"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Launch Frontend Only",
+      "type": "shell",
+      "command": "${workspaceFolder}/start_frontend.bat",
+      "windows": {
+        "command": "${workspaceFolder}\\start_frontend.bat"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Run Network Diagnostics",
+      "type": "shell",
+      "command": "\"${workspaceFolder}\\.venv\\Scripts\\python.exe\" \"${workspaceFolder}\\network_diagnostics.py\"",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Run Standalone Extractor",
+      "type": "shell",
+      "command": "\"${workspaceFolder}\\.venv\\Scripts\\python.exe\" \"${workspaceFolder}\\standalone_extractor.py\" \"${input:documentPath}\"",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Process Markdown with Extractor",
+      "type": "shell",
+      "command": "\"${workspaceFolder}\\.venv\\Scripts\\python.exe\" \"${workspaceFolder}\\standalone_extractor.py\" \"${workspaceFolder}\\markdown_sample.md\"",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Run Docs Folder Test",
+      "type": "shell",
+      "command": "\"${workspaceFolder}\\.venv\\Scripts\\python.exe\" \"${workspaceFolder}\\docs_folder_test.py\"",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": true
+      },
+      "group": "test",
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "documentPath",
+      "description": "Path to document for extraction:",
+      "default": "${workspaceFolder}\\sample_document.txt",
+      "type": "promptString"
+    }
+  ]
+}

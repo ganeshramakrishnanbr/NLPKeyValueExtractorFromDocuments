@@ -1,0 +1,57 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Backend (FastAPI)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": [
+        "backend.main:app",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8000",
+        "--reload"
+      ],
+      "jinja": true,
+      "justMyCode": false
+    },    {
+      "name": "Debug Frontend (Django)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/frontend/manage.py",
+      "args": [
+        "runserver",
+        "127.0.0.1:8080"
+      ],
+      "django": true,
+      "justMyCode": false
+    },    {
+      "name": "Debug Standalone Extractor",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/standalone_extractor.py",
+      "args": [
+        "${command:pickFile}"
+      ],
+      "console": "integratedTerminal"
+    },    {
+      "name": "Debug Network Diagnostics",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/network_diagnostics.py",
+      "console": "integratedTerminal"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Debug Backend & Frontend",
+      "configurations": [
+        "Debug Backend (FastAPI)",
+        "Debug Frontend (Django)"
+      ],
+      "stopAll": true
+    }
+  ]
+}

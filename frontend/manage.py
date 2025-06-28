@@ -2,6 +2,10 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
+from pathlib import Path
+
+# Add project root to the Python path to allow importing the 'layoutlm' package
+sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 
 def main():
